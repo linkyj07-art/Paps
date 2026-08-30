@@ -2195,6 +2195,13 @@ ROUTING_NUMBERS = {
     ("IRONWORKERS USA", "Washington"): "323075327",
     ("Increase Bank", "Washington"): "026015244",
     ("KITSAP", "Washington"): "325180223",
+    ("LEWIS CLARK", "Washington"): "323173274",
+    ("LONGSHORE", "Washington"): "325179946",
+    ("LONGSHOREMEN'S LOCAL 4", "Washington"): "323383530",
+    ("LOWER COLUMBIA LONGSHOREMEN", "Washington"): "323380782",
+    ("Lamont Bank of St. John", "Washington"): "125102676",
+    ("MERIWEST", "Washington"): "",
+    ("MILL TOWN", "Washington"): "325180540",
 
     # ---- Arkansas (complete) ----
     ("ALCOA COMMUNITY", "Arkansas"): "282074566",
