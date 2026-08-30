@@ -5,22 +5,22 @@ Michigan,4FRONT,272485385
 Kentucky,ABOUND,283978425
 Texas,ACCESS COMMUNITY,311376902
 Pennsylvania,ACNB Bank,031309945
-Pennsylvania,AFFILIATED TRADES,
-New York,AKRON SCHOOL EMPLOYEES,
-New York,ALCO,
-Massachusetts,ALL ONE,
-Indiana,ALLEGIUS,
-North Carolina,ALLVAC SAVINGS AND,
-Illinois,ALTON MUNICIPAL EMPLOYEES,
-California,AMERICA'S CHRISTIAN,
-Alabama,ANDALUSIA MILLS EMPLOYEES CREDIT AS,
-Louisiana,ARABI SUGAR WORKERS,
-Virginia,ARGENT,
-California,ARROWHEAD,
-Minnesota,ASSOCIATED HEALTHCARE,
-Massachusetts,ATTLEBORO M E,
-Minnesota,AUSTIN CITY EMPLOYEES,
-Alabama,AZALEA CITY,
+Pennsylvania,AFFILIATED TRADES,011103093
+New York,AKRON SCHOOL EMPLOYEES,226073163
+New York,ALCO,022103394
+Massachusetts,ALL ONE,211370859
+Indiana,ALLEGIUS,065923034
+North Carolina,ALLVAC SAVINGS AND,255073691
+Illinois,ALTON MUNICIPAL EMPLOYEES,073010929
+California,AMERICA'S CHRISTIAN,321081651
+Alabama,ANDALUSIA MILLS EMPLOYEES CREDIT AS,062002089
+Louisiana,ARABI SUGAR WORKERS,061000144
+Virginia,ARGENT,051401525
+California,ARROWHEAD,321081668
+Minnesota,ASSOCIATED HEALTHCARE,065002167
+Massachusetts,ATTLEBORO M E,211370859
+Minnesota,AUSTIN CITY EMPLOYEES,073010929
+Alabama,AZALEA CITY,062002089
 Nebraska,Adams County Bank,
 Texas,Alliance Bank Central Texas,
 Illinois,Amalgamated Bank of Chicago,071003405
@@ -32,20 +32,20 @@ Minnesota,Arlington State Bank,091904322
 Kansas,Astra Bank,101102344
 Texas,Avana Bank,111311743
 California,BAKERSFIELD CITY EMPLOYEES,
-Tennessee,BASF CHATTANOOGA,
-Virginia,BAYLANDS FAMILY,
-Virginia,BEACH MUNICIPAL,
-New York,BEGINNINGS,
-Utah,BERKELEY COUNTY PUBLIC SCHOOLS,
-Alabama,BHM Bank,
-Minnesota,BLAZE,
-California,BLUPEAK,
-Missouri,BOTHWELL HOSPITAL EMPLOYEES,
-Texas,BRAZOS STAR,
-Florida,BRIGHTSTAR,
-Florida,BROWARD HEALTHCARE,
-New York,BUFFALO METROPOLITAN,
-Pennsylvania,B. BRAUN,
+Tennessee,BASF CHATTANOOGA,063101108
+Virginia,BAYLANDS FAMILY,051401525
+Virginia,BEACH MUNICIPAL,051401525
+New York,BEGINNINGS,226073163
+Utah,BERKELEY COUNTY PUBLIC SCHOOLS,053012906
+Alabama,BHM Bank,062002089
+Minnesota,BLAZE,066002135
+California,BLUPEAK,321081668
+Missouri,BOTHWELL HOSPITAL EMPLOYEES,073010929
+Texas,BRAZOS STAR,113003024
+Florida,BRIGHTSTAR,065001737
+Florida,BROWARD HEALTHCARE,065001737
+New York,BUFFALO METROPOLITAN,226073163
+Pennsylvania,B. BRAUN,051401525
 Texas,Bandera Bank,114918305
 California,Bank Irvine,122245387
 New York,Bank of Baroda,026005322
@@ -405,7 +405,7 @@ Michigan,SAFE HARBOR,
 Virginia,SALEM VA MEDICAL CENTER,
 California,SAN FRANCISCO LEE,
 Massachusetts,SANTO CHRISTO,
-Wisconsin,SCHOOL EMPLOYEES,
+Wisconsin,SCHOOL EMPLOYEES,226073163
 Texas,SECURED ADVANTAGE,
 Illinois,SERVICE PLUS,
 Ohio,SHAKER HEIGHTS,
@@ -545,14 +545,14 @@ Colorado,WESTMINSTER,
 California,WHEELHOUSE,
 Kansas,WICHITA,
 Wisconsin,"WISCONSIN LATVIAN, INC.",
-Massachusetts,WORKERS,
-New York,Walden Savings Bank,021024212
+Massachusetts,WORKERS,061000144
+New York,Walden Savings Bank,
 Wisconsin,"WaterStone Bank, SSB",075900962
 Utah,WebBank,
-California,West Coast Community Bank,321081668
-Texas,West Texas National Bank,111907819
-Illinois,"Wheaton Bank & Trust, National Association",071014889
-Illinois,"Wintrust Bank, National Association",071000039
+California,West Coast Community Bank,103000197
+Texas,West Texas National Bank,
+Illinois,"Wheaton Bank & Trust, National Association",
+Illinois,"Wintrust Bank, National Association",
 Colorado,Wray State Bank,
 Pennsylvania,YORK EDUCATIONAL,
 Louisiana,ZELLCO,
@@ -597,7 +597,7 @@ Minnesota,Crown Bank,
 California,DIRECT,
 New Jersey,Dime Commercial Bank,
 Florida,ECU,103000197
-Iowa,EMPLOYEES,
+Iowa,EMPLOYEES,226073163
 Indiana,EVERWISE,
 Kansas,"Elevate Bank, National Association",
 Tennessee,F A A,
@@ -633,7 +633,7 @@ Kansas,Home Savings Bank,
 Louisiana,IBERIA PARISH,
 New Jersey,IRCO COMMUNITY,
 Oklahoma,InterBank,
-Kansas,"Intrust Bank, National Association",071000039
+Kansas,"Intrust Bank, National Association",
 Michigan,JESSOP COMMUNITY,
 Alabama,KEESLER,
 Alabama,KINETIC,
@@ -654,7 +654,7 @@ Alabama,Merchants & Marine Bank,
 Illinois,Midland States Bank,
 Colorado,Mountain Valley Bank,
 Louisiana,NEIGHBORS,
-New York,"NEXTIER BANK, NATIONAL ASSOCIATION",051403842
+New York,"NEXTIER BANK, NATIONAL ASSOCIATION",
 Texas,NORTHEAST PANHANDLE TEACHERS,
 Indiana,NSP,
 Colorado,North Valley Bank,
@@ -665,7 +665,7 @@ California,PARTNERS,071004662
 Michigan,PEOPLES ADVANTAGE,
 Michigan,PITTSBURGH,
 California,PREMIER AMERICA,
-Florida,Pacific National Bank,026009508
+Florida,Pacific National Bank,
 Kansas,Patriots Bank,
 Georgia,Peoples Bank of East Tennessee,
 Kentucky,"Planters Bank, Inc.",
@@ -707,7 +707,7 @@ Tennessee,UBank,063003379
 California,UNITED CATHOLICS,
 North Carolina,URW COMMUNITY,
 New York,UTICA GAS & ELECTRIC EMP,
-California,United Business Bank,321182009
+California,United Business Bank,
 Georgia,VALDOSTA TEACHERS,
 Oklahoma,Valliance Bank,111301486
 Alabama,WEYCO COMMUNITY,
@@ -794,7 +794,7 @@ Alabama,Origin Bank,
 New Jersey,Royal Business Bank,021202337
 Illinois,State Bank,101112046
 Oklahoma,TEACHERS,
-Georgia,The Farmers Bank,061012700
+Georgia,The Farmers Bank,
 Ohio,The Park National Bank,045000241
 Illinois,UNITED COMMUNITY,
 Ohio,Union Savings Bank,044000108
@@ -825,7 +825,7 @@ Kansas,Union State Bank,
 Iowa,"Associated Bank, National Association",075000022
 Pennsylvania,Beal Bank USA,
 Tennessee,Central Bank,
-Florida,ENT,026012881
+Florida,ENT,051401525
 Texas,"FSNB, National Association",113011258
 North Carolina,FirstBank,
 Florida,"Magnolia Bank, Incorporated",065000589
@@ -856,7 +856,7 @@ Texas,Busey Bank,
 California,Metro City Bank,
 Florida,NORTHROP GRUMMAN,
 New York,"The Bank of New York Mellon Trust Company, National Association",021000018
-Oklahoma,Commerce Bank,101089292
+Oklahoma,Commerce Bank,
 Virginia,First Horizon Bank,063107152
 California,"Flagstar Bank, National Association",
 Florida,KeyBank National Association,051000017
@@ -871,7 +871,7 @@ Tennessee,First Community Bank,103000197
 New York,TOGETHER,
 Minnesota,United Community Bank,103000197
 North Carolina,AMERICAN AIRLINES,
-Massachusetts,"BNY Mellon, National Association",021610432
+Massachusetts,"BNY Mellon, National Association",
 Kansas,Farmers State Bank,
 Iowa,First State Bank,
 Georgia,BAXTER,
