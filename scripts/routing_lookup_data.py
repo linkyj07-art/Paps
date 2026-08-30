@@ -1654,7 +1654,7 @@ ROUTING_NUMBERS = {
     ("Woodforest National Bank", "South Carolina"): "314972853",
     ("Woodruff Federal Savings and Loan Association", "South Carolina"): "253272533",
 
-    # ---- West Virginia (partial -- in progress) ----
+    # ---- West Virginia (complete) ----
     ("167TH TFR", "West Virginia"): "257079033",
     ("ACT 1ST", "West Virginia"): "252176889",
     ("ALDERSON FCI", "West Virginia"): "251583444",
@@ -1803,8 +1803,10 @@ ROUTING_NUMBERS = {
     ("Whitesville State Bank", "West Virginia"): "051504429",
     ("Williamstown Bank, Inc.", "West Virginia"): "051503909",
     ("Woodforest National Bank", "West Virginia"): "044115809",
+    ("BAYER HERITAGE", "West Virginia"): "243475829",
+    ("Manufacturers and Traders Trust Company", "West Virginia"): "052000113",
 
-    # ---- Maryland (partial -- in progress) ----
+    # ---- Maryland (complete) ----
     ("1897", "Maryland"): "255076753",
     ("ABERDEEN PROVING GROUND", "Maryland"): "255075576",
     ("ACNB Bank", "Maryland"): "031309945",
@@ -1958,7 +1960,12 @@ ROUTING_NUMBERS = {
     ("Woodsboro Bank", "Maryland"): "055002150",
     ("Woori America Bank", "Maryland"): "055003489",
 
-    # ---- Mississippi (partial -- in progress) ----
+    ("ACT 1ST", "Maryland"): "252176889",
+    ("CHESSIE", "Maryland"): "252177150",
+    ("Bank of England", "Maryland"): "",
+    ("Wilmington Trust, National Association", "Maryland"): "022313005",
+
+    # ---- Mississippi (complete) ----
     ("1ST MISSISSIPPI", "Mississippi"): "265377714",
     ("ALL IN", "Mississippi"): "",
     ("AMPOT", "Mississippi"): "284283397",
@@ -2079,4 +2086,41 @@ ROUTING_NUMBERS = {
     ("Renasant Bank", "Mississippi"): "084201294",
     ("Richton Bank & Trust Company", "Mississippi"): "065303810",
     ("RiverHills Bank", "Mississippi"): "065301647",
+    ("SHELBY/BOLIVAR COUNTY", "Mississippi"): "284283504",
+    ("SINGING RIVER", "Mississippi"): "265377840",
+    ("SOUTHEAST FINANCIAL", "Mississippi"): "264081179",
+    ("SOUTHERN COASTAL", "Mississippi"): "265576696",
+    ("SOUTHERN ENERGY", "Mississippi"): "262087609",
+    ("SOUTHERN SECURITY", "Mississippi"): "",
+    ("STATEWIDE", "Mississippi"): "265377222",
+    ("SUNBELT", "Mississippi"): "265377633",
+    ("Southern Bancorp Bank", "Mississippi"): "082901334",
+    ("Story Bank DBA Story Financial Partners", "Mississippi"): "",
+    ("THE NEW ORLEANS FIREMEN'S", "Mississippi"): "265075812",
+    ("TOMBIGBEE", "Mississippi"): "284283067",
+    ("TRIANGLE", "Mississippi"): "284283261",
+    ("The Bank of Forest", "Mississippi"): "065302183",
+    ("The Bank of Vernon", "Mississippi"): "062203874",
+    ("The Citizens Bank of Philadelphia, Mississippi", "Mississippi"): "065302154",
+    ("The Citizens National Bank of Meridian", "Mississippi"): "065300211",
+    ("The Cleveland State Bank", "Mississippi"): "084202280",
+    ("The Commercial Bank", "Mississippi"): "061110654",
+    ("The Huntington National Bank", "Mississippi"): "044000024",
+    ("The Jefferson Bank", "Mississippi"): "084206040",
+    ("The Peoples Bank", "Mississippi"): "084205452",
+    ("The Peoples Bank, Biloxi, Mississippi", "Mississippi"): "065500752",
+    ("Truist Bank", "Mississippi"): "084301767",
+    ("Trustmark Bank", "Mississippi"): "065300279",
+    ("United Mississippi Bank", "Mississippi"): "065301883",
+    ("Unity Bank of Mississippi", "Mississippi"): "084201676",
+    ("VERITAS", "Mississippi"): "064182605",
+    ("VICKSBURG RAILROAD", "Mississippi"): "265378182",
+    ("VICKSWOOD", "Mississippi"): "265378098",
+    ("ZELLCO", "Mississippi"): "265473812",
+    ("Bank of England", "Mississippi"): "",
+    ("NAVY FEDERAL CREDIT UNION", "Mississippi"): "256074974",
+    ("TREASURY EMPLOYEES", "Mississippi"): "265377523",
+    ("WATER'S EDGE", "Mississippi"): "265576722",
+    ("Wells Fargo Bank, National Association", "Mississippi"): "062203751",
+    ("Woodforest National Bank", "Mississippi"): "113008465",
 }
