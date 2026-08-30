@@ -64,32 +64,42 @@ def load_csv(path: Path) -> pd.DataFrame:
     return pd.read_csv(path, dtype=str, encoding="latin-1", low_memory=False)
 
 
-def build_bank_table(institutions_path: Path, locations_path: Path) -> pd.DataFrame:
-    institutions = load_csv(institutions_path)
+def build_bank_table(locations_path: Path, institutions_path: Path | None = None) -> pd.DataFrame:
     locations = load_csv(locations_path)
-
-    inst_cert_col = find_col(institutions, ["CERT"])
-    inst_name_col = find_col(institutions, ["NAME", "NAMEFULL", "BANKNAME"])
 
     loc_cert_col = find_col(locations, ["CERT"])
     loc_state_col = find_col(locations, ["STALP", "STATE", "STATEABBR", "STATE_ABBR"])
+    # FDIC's bulk locations.csv already carries the institution name (NAME) and
+    # full state name (STNAME) on every row, so a separate institutions file
+    # is only needed if locations.csv lacks a NAME column.
+    state_name_col = "STNAME" if "STNAME" in locations.columns else None
 
-    active_col = None
-    for candidate in ("ACTIVE",):
-        if candidate in institutions.columns:
-            active_col = candidate
-            break
-    if active_col:
-        institutions = institutions[institutions[active_col].astype(str).isin(["1", "1.0", "True", "true"])]
+    if institutions_path is not None:
+        institutions = load_csv(institutions_path)
+        inst_cert_col = find_col(institutions, ["CERT"])
+        inst_name_col = find_col(institutions, ["NAME", "NAMEFULL", "BANKNAME"])
+        active_col = "ACTIVE" if "ACTIVE" in institutions.columns else None
+        if active_col:
+            institutions = institutions[institutions[active_col].astype(str).isin(["1", "1.0", "True", "true"])]
+        inst_lookup = institutions[[inst_cert_col, inst_name_col]].drop_duplicates(subset=[inst_cert_col])
+        inst_lookup = inst_lookup.rename(columns={inst_cert_col: "CERT", inst_name_col: "Institution Name"})
 
-    inst_lookup = institutions[[inst_cert_col, inst_name_col]].drop_duplicates(subset=[inst_cert_col])
-    inst_lookup = inst_lookup.rename(columns={inst_cert_col: "CERT", inst_name_col: "Institution Name"})
+        loc_cols = [loc_cert_col, loc_state_col]
+        locs = locations[loc_cols].rename(columns={loc_cert_col: "CERT", loc_state_col: "StateAbbr"})
+        locs = locs.dropna(subset=["CERT", "StateAbbr"]).drop_duplicates(subset=["CERT", "StateAbbr"])
+        merged = locs.merge(inst_lookup, on="CERT", how="inner")
+    else:
+        loc_name_col = find_col(locations, ["NAME", "NAMEFULL", "BANKNAME"])
+        loc_cols = [loc_cert_col, loc_state_col, loc_name_col] + ([state_name_col] if state_name_col else [])
+        merged = locations[loc_cols].rename(
+            columns={loc_cert_col: "CERT", loc_state_col: "StateAbbr", loc_name_col: "Institution Name"}
+        )
+        merged = merged.dropna(subset=["CERT", "StateAbbr"]).drop_duplicates(subset=["CERT", "StateAbbr"])
 
-    locs = locations[[loc_cert_col, loc_state_col]].rename(columns={loc_cert_col: "CERT", loc_state_col: "StateAbbr"})
-    locs = locs.dropna(subset=["CERT", "StateAbbr"]).drop_duplicates(subset=["CERT", "StateAbbr"])
-
-    merged = locs.merge(inst_lookup, on="CERT", how="inner")
-    merged["State"] = merged["StateAbbr"].map(abbr_to_name)
+    if state_name_col and state_name_col in merged.columns:
+        merged["State"] = merged[state_name_col]
+    else:
+        merged["State"] = merged["StateAbbr"].map(abbr_to_name)
     merged["Type"] = "Bank"
 
     result = merged[["State", "Institution Name", "Type", "CERT"]].drop_duplicates(
@@ -156,14 +166,24 @@ def autosize_and_bold_header(ws) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--fdic-institutions", type=Path, required=True)
+    parser.add_argument(
+        "--fdic-institutions", type=Path, default=None,
+        help="Optional. Not needed if --fdic-locations already has a NAME column (FDIC's bulk locations.csv does).",
+    )
     parser.add_argument("--fdic-locations", type=Path, required=True)
-    parser.add_argument("--ncua-credit-unions", type=Path, required=True)
+    parser.add_argument(
+        "--ncua-credit-unions", type=Path, default=None,
+        help="Optional. Omit to produce a banks-only workbook.",
+    )
     parser.add_argument("--output", type=Path, default=Path("data/master_institutions.xlsx"))
     args = parser.parse_args()
 
-    banks = build_bank_table(args.fdic_institutions, args.fdic_locations)
-    credit_unions = build_credit_union_table(args.ncua_credit_unions)
+    banks = build_bank_table(args.fdic_locations, args.fdic_institutions)
+    credit_unions = (
+        build_credit_union_table(args.ncua_credit_unions)
+        if args.ncua_credit_unions is not None
+        else pd.DataFrame(columns=["State", "Institution Name", "Type"])
+    )
 
     master = pd.concat(
         [
