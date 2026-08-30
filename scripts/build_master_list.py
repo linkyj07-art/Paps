@@ -69,10 +69,13 @@ def build_bank_table(locations_path: Path, institutions_path: Path | None = None
 
     loc_cert_col = find_col(locations, ["CERT"])
     loc_state_col = find_col(locations, ["STALP", "STATE", "STATEABBR", "STATE_ABBR"])
-    # FDIC's bulk locations.csv already carries the institution name (NAME) and
-    # full state name (STNAME) on every row, so a separate institutions file
-    # is only needed if locations.csv lacks a NAME column.
-    state_name_col = "STNAME" if "STNAME" in locations.columns else None
+    # FDIC's bulk locations.csv already carries the institution name (NAME) on
+    # every row, so a separate institutions file is only needed if
+    # locations.csv lacks a NAME column. State names are always derived from
+    # the abbreviation (not the file's own STNAME column, whose capitalization
+    # ["District Of Columbia"] doesn't match the canonical casing used for the
+    # credit union side, which would otherwise split state counts in the
+    # summary sheet).
 
     if institutions_path is not None:
         institutions = load_csv(institutions_path)
@@ -90,16 +93,13 @@ def build_bank_table(locations_path: Path, institutions_path: Path | None = None
         merged = locs.merge(inst_lookup, on="CERT", how="inner")
     else:
         loc_name_col = find_col(locations, ["NAME", "NAMEFULL", "BANKNAME"])
-        loc_cols = [loc_cert_col, loc_state_col, loc_name_col] + ([state_name_col] if state_name_col else [])
+        loc_cols = [loc_cert_col, loc_state_col, loc_name_col]
         merged = locations[loc_cols].rename(
             columns={loc_cert_col: "CERT", loc_state_col: "StateAbbr", loc_name_col: "Institution Name"}
         )
         merged = merged.dropna(subset=["CERT", "StateAbbr"]).drop_duplicates(subset=["CERT", "StateAbbr"])
 
-    if state_name_col and state_name_col in merged.columns:
-        merged["State"] = merged[state_name_col]
-    else:
-        merged["State"] = merged["StateAbbr"].map(abbr_to_name)
+    merged["State"] = merged["StateAbbr"].map(abbr_to_name)
     merged["Type"] = "Bank"
 
     result = merged[["State", "Institution Name", "Type", "CERT"]].drop_duplicates(
@@ -112,7 +112,9 @@ def build_credit_union_table(ncua_path: Path) -> pd.DataFrame:
     ncua = load_csv(ncua_path)
 
     name_col = find_col(ncua, ["CU_NAME", "CREDIT UNION NAME", "CREDIT_UNION_NAME", "NAME", "CUNAME"])
-    state_col = find_col(ncua, ["STATE", "PHYSICALADDRESSSTATE", "STALP", "ST"])
+    state_col = find_col(
+        ncua, ["PhysicalAddressStateCode", "STATE", "PHYSICALADDRESSSTATE", "STALP", "ST"]
+    )
 
     charter_col = None
     for candidate in ("CU_NUMBER", "CHARTER", "CHARTER_NUMBER", "CUNUMBER", "NCUA_CHARTER"):

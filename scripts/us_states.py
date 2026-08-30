@@ -1,6 +1,6 @@
 """US state/territory abbreviation <-> full name mapping used across the ETL scripts."""
 
-STATE_NAME_BY_ABBR = {
+_STATES_AND_DC_BY_ABBR = {
     "AL": "Alabama", "AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas",
     "CA": "California", "CO": "Colorado", "CT": "Connecticut", "DE": "Delaware",
     "FL": "Florida", "GA": "Georgia", "HI": "Hawaii", "ID": "Idaho",
@@ -14,12 +14,20 @@ STATE_NAME_BY_ABBR = {
     "SD": "South Dakota", "TN": "Tennessee", "TX": "Texas", "UT": "Utah",
     "VT": "Vermont", "VA": "Virginia", "WA": "Washington", "WV": "West Virginia",
     "WI": "Wisconsin", "WY": "Wyoming", "DC": "District of Columbia",
-    "PR": "Puerto Rico", "GU": "Guam", "VI": "Virgin Islands",
-    "AS": "American Samoa", "MP": "Northern Mariana Islands",
 }
 
+# Non-state US territories/associated jurisdictions that show up in FDIC/NCUA
+# data but are excluded from the 50-states-plus-DC State Summary sheet.
+_OTHER_TERRITORIES_BY_ABBR = {
+    "PR": "Puerto Rico", "GU": "Guam", "VI": "Virgin Islands",
+    "AS": "American Samoa", "MP": "Northern Mariana Islands",
+    "FM": "Federated States of Micronesia", "MH": "Marshall Islands", "PW": "Palau",
+}
+
+STATE_NAME_BY_ABBR = {**_STATES_AND_DC_BY_ABBR, **_OTHER_TERRITORIES_BY_ABBR}
+
 # The 50 states + DC, in the order the State Summary sheet should list them.
-US_STATES_AND_DC = [v for k, v in STATE_NAME_BY_ABBR.items() if k not in ("PR", "GU", "VI", "AS", "MP")]
+US_STATES_AND_DC = list(_STATES_AND_DC_BY_ABBR.values())
 
 
 def abbr_to_name(abbr: str) -> str:
