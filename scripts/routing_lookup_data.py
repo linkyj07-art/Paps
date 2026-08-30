@@ -2185,6 +2185,16 @@ ROUTING_NUMBERS = {
     ("Glacier Bank", "Washington"): "292970825",
     ("HAPO COMMUNITY", "Washington"): "325181264",
     ("HARBORSTONE", "Washington"): "325180870",
+    ("HORIZON", "Washington"): "325180520",
+    ("HSBC Bank USA, National Association", "Washington"): "",
+    ("Heritage Bank", "Washington"): "325170835",
+    ("IBEW 76", "Washington"): "325182991",
+    ("IDAHO CENTRAL", "Washington"): "324173626",
+    ("INDUSTRIAL CU OF WHATCOM COUNTY", "Washington"): "325180155",
+    ("IQ", "Washington"): "323383378",
+    ("IRONWORKERS USA", "Washington"): "323075327",
+    ("Increase Bank", "Washington"): "026015244",
+    ("KITSAP", "Washington"): "325180223",
 
     # ---- Arkansas (complete) ----
     ("ALCOA COMMUNITY", "Arkansas"): "282074566",
