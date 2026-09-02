@@ -3,3 +3,4 @@ data/*.xlsx
 !data/.gitkeep
 __pycache__/
 *.pyc
+!data/life_insurance_nonresident_license_fees.csv

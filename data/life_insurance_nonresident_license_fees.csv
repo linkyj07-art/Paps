@@ -1,0 +1,52 @@
+State,Abbrev,NonResident License Fee (USD),Notes,Confidence
+Alabama,AL,80,Per-LOA fee structure; +$5 NIPR transaction fee per application,needs verification
+Alaska,AK,75,No NIPR transaction fee charged by NIPR for AK,needs verification
+Arizona,AZ,120,No NIPR transaction fee historically waived; verify,needs verification
+Arkansas,AR,70,+NIPR transaction fee,needs verification
+California,CA,58,CA does not fully reciprocate; verify current fee at insurance.ca.gov,needs verification
+Colorado,CO,79,+NIPR transaction fee,needs verification
+Connecticut,CT,80,+NIPR transaction fee,needs verification
+Delaware,DE,100,Same as resident fee per DE DOI FAQ,verified (DE DOI)
+District of Columbia,DC,100,+NIPR transaction fee,needs verification
+Florida,FL,55,License fee; appointments billed separately,needs verification
+Georgia,GA,120,$120 for life (or any single LOA) per GA DOI,verified (search)
+Hawaii,HI,150,State license fee $150; possible Compliance Resolution Fund surcharge,verified (search)
+Idaho,ID,80,No NIPR transaction fee charged for ID,needs verification
+Illinois,IL,180,IL charges no separate state fee via NIPR per some sources; conflicting reports — verify,needs verification
+Indiana,IN,90,Unless retaliatory fees apply per IN DOI,verified (IN DOI)
+Iowa,IA,50,+NIPR transaction fee,needs verification
+Kansas,KS,60,+NIPR transaction fee,needs verification
+Kentucky,KY,80,Reported $80; some sources list $120 — verify,needs verification
+Louisiana,LA,80,Reported $80 ($75 + processing),needs verification
+Maine,ME,85,,needs verification
+Maryland,MD,80,Some sources list $69 — verify,needs verification
+Massachusetts,MA,150,Retaliatory fees can raise to $225 depending on home state,needs verification
+Michigan,MI,10,Lowest non-resident fee in the country,verified (multiple sources)
+Minnesota,MN,90,$50 license + $40 technology surcharge,needs verification
+Mississippi,MS,100,,needs verification
+Missouri,MO,100,,needs verification
+Montana,MT,100,,needs verification
+Nebraska,NE,50,,needs verification
+Nevada,NV,185,No NIPR transaction fee charged for NV,needs verification
+New Hampshire,NH,210,,needs verification
+New Jersey,NJ,190,$150 license + $40 processing (major lines) per NJ DOBI,verified (NJ DOBI)
+New Mexico,NM,30,+$5.60 NIPR transaction fee,verified (search)
+New York,NY,80,$25 if license term ≤1 yr; $50 if >1 yr per DFS — biennial life agent commonly $80; verify,needs verification
+North Carolina,NC,94,$50 registration + $44 application processing (life) per NC DOI,verified (NC DOI)
+North Dakota,ND,100,Initial producer application fee per ND DOI,verified (ND DOI)
+Ohio,OH,10,$10 per line of authority,verified (search)
+Oklahoma,OK,100,Some sources show $20 service-of-process + $20 review for agencies; individual fee verify,needs verification
+Oregon,OR,80,Per NY DFS reciprocal fee schedule,verified (NY DFS schedule)
+Pennsylvania,PA,110,Per NY DFS reciprocal fee schedule,verified (NY DFS schedule)
+Rhode Island,RI,110,Per NY DFS reciprocal fee schedule,verified (NY DFS schedule)
+South Carolina,SC,80,,verified (search)
+South Dakota,SD,30,+service fee at submission; no NIPR fee for SD per some sources,verified (SD DLR)
+Tennessee,TN,50,$50 application + $5.60 NIPR; retaliatory fees may apply,verified (search)
+Texas,TX,50,,needs verification
+Utah,UT,75,,needs verification
+Vermont,VT,60,,needs verification
+Virginia,VA,15,$15 per line of authority (among the cheapest),needs verification
+Washington,WA,55,,needs verification
+West Virginia,WV,50,,needs verification
+Wisconsin,WI,75,,needs verification
+Wyoming,WY,100,,needs verification
