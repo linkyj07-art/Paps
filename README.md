@@ -73,3 +73,22 @@ python3 scripts/build_master_list.py \
   --ncua-credit-unions tests/fixtures/ncua_sample.csv \
   --output /tmp/test_output.xlsx
 ```
+
+---
+
+# Life Insurance Tracker
+
+`life_insurance_tracker.xlsx` is a fill-in workbook for tracking life
+insurance policies (works for your own policies or a book of clients).
+Open it in Excel, Google Sheets, or Numbers and start typing on the
+**Policies** sheet — the **How to Use** tab explains every sheet.
+
+- **Policies** — carrier, policy #, type, status, face amount, premium,
+  frequency, dates, draft day, next due date. Annual premium, term end
+  date, days until due, total paid, and beneficiary % are calculated.
+- **Beneficiaries** / **Payments** — linked to Policies by Policy Number.
+- **Summary** — coverage in force, annual premium, overdue/due-soon counts,
+  breakdowns by status and policy type.
+- **Lists** — dropdown options; edit to customize.
+
+To regenerate a blank copy: `python3 scripts/build_life_insurance_tracker.py`
