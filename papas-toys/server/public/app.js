@@ -90,6 +90,9 @@ function wireEvents() {
   });
 
   $('[data-action="signout"]').addEventListener('click', () => signOut(state.auth));
+  $('[data-action="close-drawer"]').addEventListener('click', closeDrawer);
+  $('[data-role="drawer-overlay"]').addEventListener('click', closeDrawer);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
 
   let searchTimer;
   $('[data-role="search"]').addEventListener('input', (e) => {
@@ -223,6 +226,7 @@ function renderRows() {
     }));
     $('[data-action="hitlist"]', tr).addEventListener('click', () => patch(id, { hitlist: 1 }));
     $('[data-action="archive"]', tr).addEventListener('click', () => patch(id, { archived: 1 }, true));
+    $('[data-role="open"]', tr).addEventListener('click', () => openDrawer(id));
   });
 }
 
@@ -231,7 +235,7 @@ function rowHtml(r) {
     : r.geo_status === 'Failed' ? 'geo-failed' : 'geo-needs';
   return `
     <tr data-id="${escapeHtml(r.id)}">
-      <td><div class="rec-name">${escapeHtml(r.name || '(no name)')}</div>
+      <td><div class="rec-name" data-role="open">${escapeHtml(r.name || '(no name)')}</div>
           <div class="muted">${escapeHtml(r.market || '')}</div></td>
       <td class="muted">${fmtDate(r.uploaded_at)}</td>
       <td class="muted">${fmtDate(r.updated_at)}</td>
@@ -264,6 +268,85 @@ async function patch(id, body, removeRow = false) {
   } catch (err) {
     setStatusNote('Update failed: ' + err.message);
   }
+}
+
+// ---------- lead detail drawer ----------
+function geoBadge(status) {
+  const cls = status === 'Geocoded' || status === 'Manual' ? 'badge-ok'
+    : status === 'Failed' ? 'badge-bad' : 'badge-warn';
+  return `<span class="badge ${cls}">${escapeHtml(status || 'Unknown')}</span>`;
+}
+function field(k, v) {
+  if (v == null || v === '') return '';
+  return `<div class="d-field"><div class="k">${escapeHtml(k)}</div><div class="v">${v}</div></div>`;
+}
+function link(url, label) {
+  if (!url) return '';
+  return `<a href="${escapeAttr(url)}" target="_blank" rel="noopener">${escapeHtml(label || url)}</a>`;
+}
+
+function openDrawer(id) {
+  const r = state.rows.find((x) => x.id === id);
+  if (!r) return;
+  $('[data-role="d-name"]').textContent = r.name || '(no name)';
+  $('[data-role="d-sub"]').textContent = [r.company, r.market].filter(Boolean).join(' · ');
+
+  let raw = {};
+  try { raw = r.raw ? JSON.parse(r.raw) : {}; } catch (_e) { /* ignore */ }
+
+  const contact = [
+    field('Name', escapeHtml(r.name)),
+    field('Company', escapeHtml(r.company)),
+    field('Phone', r.phone ? link('tel:' + r.phone.replace(/[^0-9+]/g, ''), r.phone) : ''),
+    field('Email', r.email ? link('mailto:' + r.email, r.email) : ''),
+    field('Address', escapeHtml(r.address)),
+    field('City', escapeHtml(r.city)),
+    field('Lat / Lng', (r.lat != null && r.lng != null) ? `${r.lat}, ${r.lng}` : ''),
+  ].join('');
+
+  const lead = [
+    field('Market', escapeHtml(r.market)),
+    field('Product', escapeHtml(r.product)),
+    field('Record Source', escapeHtml(r.record_source)),
+    field('Sub Source', escapeHtml(r.sub_source)),
+    field('Comp App Date', escapeHtml(r.comp_app_date)),
+    field('Salesforce', link(r.lead_url, 'Open in Salesforce ↗')),
+  ].join('');
+
+  const meta = [
+    field('Geo Status', geoBadge(r.geo_status)),
+    field('Geo Fails', String(r.geo_fails ?? 0)),
+    r.geo_last_error ? field('Geo Error', escapeHtml(r.geo_last_error)) : '',
+    field('Uploaded', fmtDate(r.uploaded_at)),
+    field('Last Updated', fmtDate(r.updated_at)),
+    field('Hitlist', r.hitlist ? 'Yes' : 'No'),
+    field('Archived', r.archived ? 'Yes' : 'No'),
+    field('Record ID', escapeHtml(r.id)),
+  ].join('');
+
+  $('[data-role="d-body"]').innerHTML = `
+    <div class="d-section"><h3>Contact</h3><div class="d-grid">${contact}</div></div>
+    <div class="d-section"><h3>Lead</h3><div class="d-grid">${lead}</div></div>
+    <div class="d-section"><h3>Status</h3><div class="d-grid">${meta}</div></div>
+    <div class="d-actions">
+      <button class="btn" data-d-action="hitlist">${r.hitlist ? 'On Hitlist ✓' : 'Add to Hitlist'}</button>
+      <button class="btn btn-danger" data-d-action="archive">${r.archived ? 'Archived' : 'Archive'}</button>
+    </div>
+    <details class="d-raw"><summary>Raw captured data</summary><pre>${escapeHtml(JSON.stringify(raw, null, 2))}</pre></details>
+  `;
+
+  const body = $('[data-role="d-body"]');
+  const h = $('[data-d-action="hitlist"]', body);
+  const a = $('[data-d-action="archive"]', body);
+  if (h) h.addEventListener('click', async () => { await patch(id, { hitlist: r.hitlist ? 0 : 1 }); openDrawer(id); });
+  if (a) a.addEventListener('click', async () => { await patch(id, { archived: 1 }, true); closeDrawer(); });
+
+  $('[data-role="drawer"]').hidden = false;
+  $('[data-role="drawer-overlay"]').hidden = false;
+}
+function closeDrawer() {
+  $('[data-role="drawer"]').hidden = true;
+  $('[data-role="drawer-overlay"]').hidden = true;
 }
 
 // ---------- helpers ----------

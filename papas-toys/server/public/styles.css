@@ -115,5 +115,38 @@ tbody tr:hover { background: #fafbfe; }
 }
 .err { color: var(--danger); font-weight: 650; min-height: 18px; }
 
+/* ---- lead detail drawer ---- */
+.rec-name { cursor: pointer; }
+.rec-name:hover { text-decoration: underline; }
+.drawer-overlay { position: fixed; inset: 0; background: rgba(16,24,34,.38); z-index: 40; }
+.drawer {
+  position: fixed; top: 0; right: 0; height: 100vh; width: 460px; max-width: 92vw;
+  background: #fff; border-left: 1px solid var(--line); z-index: 41;
+  box-shadow: -14px 0 40px rgba(16,24,34,.12); display: flex; flex-direction: column;
+}
+.drawer-head {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+  padding: 20px 22px; border-bottom: 1px solid var(--line);
+}
+.drawer-title { font-size: 19px; font-weight: 800; }
+.drawer-close { border: none; background: none; font-size: 26px; line-height: 1; color: var(--muted); }
+.drawer-close:hover { color: var(--ink); }
+.drawer-body { padding: 10px 22px 40px; overflow-y: auto; }
+.d-section { margin-top: 18px; }
+.d-section h3 { font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+.d-grid { display: grid; grid-template-columns: 1fr; gap: 0; }
+.d-field { display: grid; grid-template-columns: 130px 1fr; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--line); }
+.d-field .k { color: var(--muted); font-weight: 600; }
+.d-field .v { word-break: break-word; }
+.d-field .v a { color: #1d4ed8; }
+.badge { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+.badge-ok { background: #e7f6ee; color: var(--ok); }
+.badge-warn { background: #fef3e2; color: #92400e; }
+.badge-bad { background: var(--danger-bg); color: var(--danger); }
+.d-actions { display: flex; gap: 10px; margin-top: 22px; }
+.d-raw { margin-top: 22px; }
+.d-raw summary { cursor: pointer; color: var(--muted); font-weight: 600; }
+.d-raw pre { background: #f6f8fc; border: 1px solid var(--line); border-radius: 8px; padding: 12px; overflow: auto; font-size: 12px; max-height: 320px; }
+
 @media (max-width: 1100px) { .filters { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 720px) { .filters { grid-template-columns: repeat(2, 1fr); } .nav { display: none; } }

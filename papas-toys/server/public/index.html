@@ -111,6 +111,19 @@
         <div class="status" data-role="status">Loading…</div>
       </div>
     </main>
+
+    <!-- ===== Lead detail drawer ===== -->
+    <div class="drawer-overlay" data-role="drawer-overlay" hidden></div>
+    <aside class="drawer" data-role="drawer" hidden aria-label="Lead details">
+      <div class="drawer-head">
+        <div>
+          <div class="drawer-title" data-role="d-name">Lead</div>
+          <div class="muted" data-role="d-sub"></div>
+        </div>
+        <button class="drawer-close" data-action="close-drawer" title="Close">×</button>
+      </div>
+      <div class="drawer-body" data-role="d-body"></div>
+    </aside>
   </div>
 
   <script type="module" src="app.js"></script>
