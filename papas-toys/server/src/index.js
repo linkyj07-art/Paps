@@ -5,12 +5,9 @@ const express = require('express');
 const cors = require('cors');
 
 const db = require('./db');
-const auth = require('./auth');
-const { requireAuth } = auth;
+const { requireAuth, PROJECT_ID } = require('./auth');
 const { normalizeRow } = require('./normalize');
 const { processQueue } = require('./geocode');
-
-auth.seedAdmin();
 
 const PORT = Number(process.env.PORT || 8080);
 const app = express();
@@ -18,44 +15,17 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '15mb' }));
 
-// ----- health -----
+// ----- health / config for the dashboard login -----
 app.get('/healthz', (_req, res) => res.json({ ok: true }));
-
-// ===== Auth endpoints (used by the extension popup AND the dashboard) =====
-
-// POST /auth/login  { email, password } -> { token, refreshToken, expiresAt, email }
-app.post('/auth/login', (req, res) => {
-  const { email, password } = req.body || {};
-  try {
-    res.json(auth.login(email, password));
-  } catch (err) {
-    res.status(err.status || 400).json({ error: String(err.message || err) });
-  }
-});
-
-// POST /auth/refresh  { refreshToken } -> fresh tokens
-app.post('/auth/refresh', (req, res) => {
-  const { refreshToken } = req.body || {};
-  try {
-    res.json(auth.refresh(refreshToken));
-  } catch (err) {
-    res.status(err.status || 400).json({ error: String(err.message || err) });
-  }
-});
-
-// POST /auth/register  { email, password }  (protected: needs ADMIN_SIGNUP_TOKEN)
-app.post('/auth/register', (req, res) => {
-  const token = req.get('x-admin-token') || '';
-  if (!process.env.ADMIN_SIGNUP_TOKEN || token !== process.env.ADMIN_SIGNUP_TOKEN) {
-    return res.status(403).json({ error: 'Registration is disabled or token is wrong' });
-  }
-  const { email, password } = req.body || {};
-  try {
-    const user = auth.createUser(email, password);
-    return res.json({ ok: true, user });
-  } catch (err) {
-    return res.status(400).json({ error: String(err.message || err) });
-  }
+app.get('/api/config', (_req, res) => {
+  // The dashboard reads the Firebase web config it needs to sign users in.
+  res.json({
+    firebase: {
+      apiKey: process.env.FIREBASE_WEB_API_KEY || '',
+      authDomain: process.env.FIREBASE_AUTH_DOMAIN || (PROJECT_ID ? `${PROJECT_ID}.firebaseapp.com` : ''),
+      projectId: PROJECT_ID || '',
+    },
+  });
 });
 
 // ----- upsert helpers -----
@@ -255,9 +225,7 @@ app.get('*', (_req, res) => {
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
   console.log(`Papa's Toys server listening on http://localhost:${PORT}`);
-  if (!auth.hasUsers()) {
-    console.warn('[warn] no users exist yet — set ADMIN_EMAIL/ADMIN_PASSWORD, or use `npm run adduser`.');
-  }
+  if (!PROJECT_ID) console.warn('[warn] FIREBASE_PROJECT_ID not set — auth will reject tokens.');
 });
 
 // Light background geocoder so the queue drains without manual pokes.
