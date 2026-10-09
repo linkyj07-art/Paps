@@ -39,6 +39,13 @@ db.exec(`
     updated_at       TEXT NOT NULL
   );
 
+  CREATE TABLE IF NOT EXISTS users (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    email       TEXT NOT NULL UNIQUE,
+    pass_hash   TEXT NOT NULL,
+    created_at  TEXT NOT NULL
+  );
+
   CREATE INDEX IF NOT EXISTS idx_records_market        ON records(market);
   CREATE INDEX IF NOT EXISTS idx_records_geo_status    ON records(geo_status);
   CREATE INDEX IF NOT EXISTS idx_records_archived      ON records(archived);
