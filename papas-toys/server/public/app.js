@@ -310,7 +310,6 @@ function openDrawer(id) {
     field('Record Source', escapeHtml(r.record_source)),
     field('Sub Source', escapeHtml(r.sub_source)),
     field('Comp App Date', escapeHtml(r.comp_app_date)),
-    field('Salesforce', link(r.lead_url, 'Open in Salesforce ↗')),
   ].join('');
 
   const meta = [
