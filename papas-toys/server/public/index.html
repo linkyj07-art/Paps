@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Papa's Toys</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ===== Login ===== -->
+  <section class="login" data-view="login" hidden>
+    <h1>Papa's Toys</h1>
+    <p>Sign in to view records.</p>
+    <form data-role="login-form">
+      <input name="email" type="email" placeholder="Email" autocomplete="username" required />
+      <input name="password" type="password" placeholder="Password" autocomplete="current-password" required />
+      <button class="btn btn-dark" type="submit">Sign In</button>
+      <div class="err" data-role="login-error"></div>
+    </form>
+  </section>
+
+  <!-- ===== App ===== -->
+  <div data-view="app" hidden>
+    <header class="topbar">
+      <div class="brand">Papa's Toys</div>
+      <nav class="nav">
+        <a href="#map">Map</a>
+        <a href="#records" class="active">Records</a>
+        <a href="#calendar">Calendar</a>
+        <a href="#routes">Routes</a>
+        <a href="#legend">Legend</a>
+        <a href="#users">Users</a>
+      </nav>
+      <div class="spacer"></div>
+      <button class="signout" data-action="signout">Sign out</button>
+    </header>
+
+    <main class="wrap">
+      <div class="searchrow">
+        <input data-role="search" placeholder="Search records" />
+        <button class="btn" data-action="load-older">Load older</button>
+        <button class="btn" data-action="geocode">Run Geocoding</button>
+      </div>
+
+      <div class="chips" data-role="chips"></div>
+
+      <div class="filters">
+        <div class="field">
+          <label>Date Field</label>
+          <select data-filter="date_field">
+            <option>Comp App Date</option>
+            <option>Uploaded</option>
+            <option>Last Updated</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Date Range</label>
+          <select data-filter="date_range">
+            <option>All</option>
+            <option>Today Only</option>
+            <option>Tomorrow Only</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Product</label>
+          <select data-filter="product"><option value="">Any</option></select>
+        </div>
+        <div class="field">
+          <label>Market</label>
+          <select data-filter="market"><option value="">Any</option></select>
+        </div>
+        <div class="field">
+          <label>Record Source</label>
+          <select data-filter="record_source"><option value="">Any</option></select>
+        </div>
+
+        <label class="control check"><input type="checkbox" data-filter="hitlist" /> <span class="lbl">Hitlist Only</span></label>
+        <label class="control check"><input type="checkbox" data-filter="ran_only" /> <span class="lbl">Ran Appointments Only</span></label>
+        <label class="control check"><input type="checkbox" data-filter="no_sale" /> <span class="lbl">Attempt No Sale Only</span></label>
+        <label class="control check"><input type="checkbox" data-filter="success" /> <span class="lbl">Successes Only</span></label>
+        <div class="field">
+          <label>Sub Source</label>
+          <select data-filter="sub_source"><option value="">Any</option></select>
+        </div>
+
+        <div class="field">
+          <label>Geo Status</label>
+          <select data-filter="geo_status"><option value="">Any</option></select>
+        </div>
+        <label class="control check"><input type="checkbox" data-filter="show_archived" /> <span class="lbl">Show Archived</span></label>
+        <div class="control"><span class="lbl">Location</span><span class="val">Any</span></div>
+        <div class="control"><span class="lbl">Door</span><span class="val">Any</span></div>
+        <div class="control"><span class="lbl">Call</span><span class="val">Any</span></div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="all">All Leads</button>
+        <button class="tab" data-tab="needsfix">Needs Fix</button>
+      </div>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Record</th><th>Uploaded</th><th>Last Updated</th><th>Phone</th>
+              <th>Address</th><th>Lat</th><th>Lng</th><th>Geo</th><th>Geo Fails</th><th>Archive</th>
+            </tr>
+          </thead>
+          <tbody data-role="rows"></tbody>
+        </table>
+        <div class="status" data-role="status">Loading…</div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

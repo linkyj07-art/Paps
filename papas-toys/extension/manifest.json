@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Papa's Record Lookup",
+  "version": "0.1.0",
+  "description": "Record lookup helper.",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://identitytoolkit.googleapis.com/*",
+    "https://securetoken.googleapis.com/*",
+    "https://YOUR-RAILWAY-APP.up.railway.app/*"
+  ],
+  "background": { "service_worker": "b.js" },
+  "action": {
+    "default_title": "Papa's Record Lookup",
+    "default_popup": "p.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.lightning.force.com/*"],
+      "js": ["a.js"],
+      "css": ["w.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}
