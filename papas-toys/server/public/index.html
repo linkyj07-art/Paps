@@ -24,12 +24,9 @@
     <header class="topbar">
       <div class="brand">Bullsleads</div>
       <nav class="nav">
-        <a href="#map">Map</a>
         <a href="#records" class="active">Records</a>
         <a href="#calendar">Calendar</a>
         <a href="#routes">Routes</a>
-        <a href="#legend">Legend</a>
-        <a href="#users">Users</a>
       </nav>
       <div class="spacer"></div>
       <button class="signout" data-action="signout">Sign out</button>
@@ -48,18 +45,28 @@
         <div class="field">
           <label>Date Field</label>
           <select data-filter="date_field">
-            <option>Comp App Date</option>
-            <option>Uploaded</option>
-            <option>Last Updated</option>
+            <option value="comp_app_date">Comp App Date</option>
+            <option value="uploaded">Uploaded</option>
+            <option value="updated">Last Updated</option>
           </select>
         </div>
         <div class="field">
           <label>Date Range</label>
           <select data-filter="date_range">
-            <option>All</option>
-            <option>Today Only</option>
-            <option>Tomorrow Only</option>
+            <option value="">All</option>
+            <option value="yesterday">Yesterday</option>
+            <option value="today">Today</option>
+            <option value="tomorrow">Tomorrow</option>
+            <option value="custom">Custom…</option>
           </select>
+        </div>
+        <div class="field" data-role="custom-range" hidden>
+          <label>Custom Range</label>
+          <div class="daterow">
+            <input type="date" class="control" data-filter="date_from" aria-label="From date" />
+            <span class="to">to</span>
+            <input type="date" class="control" data-filter="date_to" aria-label="To date" />
+          </div>
         </div>
         <div class="field">
           <label>Product</label>
@@ -75,9 +82,6 @@
         </div>
 
         <label class="control check"><input type="checkbox" data-filter="hitlist" /> <span class="lbl">Hitlist Only</span></label>
-        <label class="control check"><input type="checkbox" data-filter="ran_only" /> <span class="lbl">Ran Appointments Only</span></label>
-        <label class="control check"><input type="checkbox" data-filter="no_sale" /> <span class="lbl">Attempt No Sale Only</span></label>
-        <label class="control check"><input type="checkbox" data-filter="success" /> <span class="lbl">Successes Only</span></label>
         <div class="field">
           <label>Sub Source</label>
           <select data-filter="sub_source"><option value="">Any</option></select>

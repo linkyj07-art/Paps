@@ -148,5 +148,11 @@ tbody tr:hover { background: #fafbfe; }
 .d-raw summary { cursor: pointer; color: var(--muted); font-weight: 600; }
 .d-raw pre { background: #f6f8fc; border: 1px solid var(--line); border-radius: 8px; padding: 12px; overflow: auto; font-size: 12px; max-height: 320px; }
 
+.daterow { display: flex; align-items: center; gap: 8px; }
+.daterow .control { min-height: 48px; flex: 1; }
+.daterow .to { color: var(--muted); font-weight: 600; }
+.d-schedule { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.d-schedule .control { flex: 1; min-width: 160px; min-height: 42px; }
+
 @media (max-width: 1100px) { .filters { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 720px) { .filters { grid-template-columns: repeat(2, 1fr); } .nav { display: none; } }

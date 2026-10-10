@@ -133,6 +133,13 @@ function wireEvents() {
     el.addEventListener(ev, () => {
       if (el.type === 'checkbox') state.filters[key] = el.checked;
       else state.filters[key] = el.value;
+      if (key === 'date_range') {
+        $('[data-role="custom-range"]').hidden = el.value !== 'custom';
+      }
+      // Don't query on a half-filled custom range; wait for both ends.
+      if (state.filters.date_range === 'custom' && (!state.filters.date_from || !state.filters.date_to)) {
+        if (key === 'date_from' || key === 'date_to') return;
+      }
       refresh(true);
     });
   });
@@ -152,6 +159,14 @@ function queryString() {
   if (f.sub_source) p.set('sub_source', f.sub_source);
   if (f.geo_status) p.set('geo_status', f.geo_status);
   if (f.hitlist) p.set('hitlist', 'true');
+  if (f.date_range) {
+    p.set('date_field', f.date_field || 'comp_app_date');
+    p.set('date_range', f.date_range);
+    if (f.date_range === 'custom') {
+      if (f.date_from) p.set('date_from', f.date_from);
+      if (f.date_to) p.set('date_to', f.date_to);
+    }
+  }
   p.set('archived', f.show_archived ? 'all' : 'false');
   return p.toString();
 }
@@ -192,7 +207,13 @@ function renderChips() {
   if (f.market) chips.push(chip('Market: ' + f.market, 'market'));
   if (f.record_source) chips.push(chip('Record Source: ' + f.record_source, 'record_source'));
   if (f.product) chips.push(chip('Product: ' + f.product, 'product'));
-  if (f.date_range && f.date_range !== 'All') chips.push(chip((f.date_field || 'Comp App Date') + ': ' + f.date_range, '__date'));
+  if (f.date_range) {
+    const labels = { yesterday: 'Yesterday', today: 'Today', tomorrow: 'Tomorrow', custom: 'Custom' };
+    const fieldLabels = { comp_app_date: 'Comp App Date', uploaded: 'Uploaded', updated: 'Last Updated' };
+    let r = labels[f.date_range] || f.date_range;
+    if (f.date_range === 'custom' && f.date_from && f.date_to) r = `${f.date_from} → ${f.date_to}`;
+    chips.push(chip((fieldLabels[f.date_field] || 'Comp App Date') + ': ' + r, '__date'));
+  }
   const el = $('[data-role="chips"]');
   el.innerHTML = chips.join('');
   $('[data-action="clear"]').addEventListener('click', clearFilters);
@@ -301,7 +322,6 @@ function openDrawer(id) {
     field('Email', r.email ? link('mailto:' + r.email, r.email) : ''),
     field('Address', escapeHtml(r.address)),
     field('City', escapeHtml(r.city)),
-    field('Lat / Lng', (r.lat != null && r.lng != null) ? `${r.lat}, ${r.lng}` : ''),
   ].join('');
 
   const lead = [
@@ -313,9 +333,7 @@ function openDrawer(id) {
   ].join('');
 
   const meta = [
-    field('Geo Status', geoBadge(r.geo_status)),
-    field('Geo Fails', String(r.geo_fails ?? 0)),
-    r.geo_last_error ? field('Geo Error', escapeHtml(r.geo_last_error)) : '',
+    field('Scheduled', r.scheduled_at ? fmtDate(r.scheduled_at) : '<span class="muted">Not scheduled</span>'),
     field('Uploaded', fmtDate(r.uploaded_at)),
     field('Last Updated', fmtDate(r.updated_at)),
     field('Hitlist', r.hitlist ? 'Yes' : 'No'),
@@ -327,6 +345,14 @@ function openDrawer(id) {
     <div class="d-section"><h3>Contact</h3><div class="d-grid">${contact}</div></div>
     <div class="d-section"><h3>Lead</h3><div class="d-grid">${lead}</div></div>
     <div class="d-section"><h3>Status</h3><div class="d-grid">${meta}</div></div>
+    <div class="d-section">
+      <h3>Schedule</h3>
+      <div class="d-schedule">
+        <input type="datetime-local" class="control" data-role="sched-input" value="${toLocalInput(r.scheduled_at)}" />
+        <button class="btn btn-dark" data-d-action="schedule">Schedule</button>
+        ${r.scheduled_at ? '<button class="btn" data-d-action="unschedule">Clear</button>' : ''}
+      </div>
+    </div>
     <div class="d-actions">
       <button class="btn" data-d-action="hitlist">${r.hitlist ? 'On Hitlist ✓' : 'Add to Hitlist'}</button>
       <button class="btn btn-danger" data-d-action="archive">${r.archived ? 'Archived' : 'Archive'}</button>
@@ -337,8 +363,17 @@ function openDrawer(id) {
   const body = $('[data-role="d-body"]');
   const h = $('[data-d-action="hitlist"]', body);
   const a = $('[data-d-action="archive"]', body);
+  const s = $('[data-d-action="schedule"]', body);
+  const u = $('[data-d-action="unschedule"]', body);
   if (h) h.addEventListener('click', async () => { await patch(id, { hitlist: r.hitlist ? 0 : 1 }); openDrawer(id); });
   if (a) a.addEventListener('click', async () => { await patch(id, { archived: 1 }, true); closeDrawer(); });
+  if (s) s.addEventListener('click', async () => {
+    const v = $('[data-role="sched-input"]', body).value;
+    if (!v) { setStatusNote('Pick a date/time first'); return; }
+    await patch(id, { scheduled_at: new Date(v).toISOString() });
+    openDrawer(id);
+  });
+  if (u) u.addEventListener('click', async () => { await patch(id, { scheduled_at: null }); openDrawer(id); });
 
   $('[data-role="drawer"]').hidden = false;
   $('[data-role="drawer-overlay"]').hidden = false;
@@ -357,6 +392,13 @@ function fmtDate(iso) {
   if (isNaN(d)) return iso;
   return d.toLocaleString('en-US', { timeZone: 'America/Boise', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
 }
+function toLocalInput(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d)) return '';
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
 function escapeHtml(s) { return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 function escapeAttr(s) { return escapeHtml(s); }
 
@@ -365,7 +407,11 @@ document.addEventListener('click', (e) => {
   const c = e.target.closest('[data-chip]');
   if (!c) return;
   const key = c.getAttribute('data-chip');
-  if (key === '__date') { delete state.filters.date_range; const s = $('[data-filter="date_range"]'); if (s) s.value = 'All'; }
+  if (key === '__date') {
+    delete state.filters.date_range; delete state.filters.date_from; delete state.filters.date_to;
+    const s = $('[data-filter="date_range"]'); if (s) s.value = '';
+    $('[data-role="custom-range"]').hidden = true;
+  }
   else { delete state.filters[key]; const el = $(`[data-filter="${key}"]`); if (el) el.value = ''; }
   refresh(true);
 });

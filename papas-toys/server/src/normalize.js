@@ -44,11 +44,20 @@ function pickCompAppDate(row) {
   return [d, t].filter(Boolean).join(' ').trim();
 }
 
+// Best-effort parse of the free-text appointment date into an ISO timestamp so it
+// can be range-filtered. Returns '' if it can't be parsed.
+function toIso(text) {
+  if (!text) return '';
+  const ms = Date.parse(text);
+  return Number.isNaN(ms) ? '' : new Date(ms).toISOString();
+}
+
 function normalizeRow(row) {
   const sr = (row && typeof row.searchResult === 'object' && row.searchResult) || {};
   const id = pickId(row || {}, sr);
   if (!id) return null; // cannot upsert without a stable key
 
+  const compAppDate = pickCompAppDate(row || {});
   return {
     id,
     name: firstNonEmpty(sr.name, row.leadName),
@@ -61,7 +70,8 @@ function normalizeRow(row) {
     product: firstNonEmpty(row.product, row.workType, sr.workType),
     record_source: firstNonEmpty(row.leadSource, row.recordSource),
     sub_source: firstNonEmpty(row.subSource),
-    comp_app_date: pickCompAppDate(row || {}),
+    comp_app_date: compAppDate,
+    comp_app_date_iso: toIso(compAppDate),
     lead_url: firstNonEmpty(row.leadUrl, sr.href),
     raw: JSON.stringify(row),
   };

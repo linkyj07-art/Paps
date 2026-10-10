@@ -46,4 +46,12 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_records_comp_app_date ON records(comp_app_date);
 `);
 
+// ---- lightweight migrations (add columns if an older DB is missing them) ----
+function ensureColumn(table, column, ddl) {
+  const cols = db.prepare(`PRAGMA table_info(${table})`).all().map((c) => c.name);
+  if (!cols.includes(column)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${ddl}`);
+}
+ensureColumn('records', 'comp_app_date_iso', 'comp_app_date_iso TEXT'); // parsed appt date for filtering
+ensureColumn('records', 'scheduled_at', 'scheduled_at TEXT');           // user-set schedule on a lead
+
 module.exports = db;

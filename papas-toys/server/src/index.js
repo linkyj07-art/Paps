@@ -36,17 +36,18 @@ const getExisting = db.prepare('SELECT id, address FROM records WHERE id = ?');
 const insertRecord = db.prepare(`
   INSERT INTO records
     (id, name, phone, email, company, address, city, market, product,
-     record_source, sub_source, comp_app_date, lead_url, raw, uploaded_at, updated_at)
+     record_source, sub_source, comp_app_date, comp_app_date_iso, lead_url, raw, uploaded_at, updated_at)
   VALUES
     (@id, @name, @phone, @email, @company, @address, @city, @market, @product,
-     @record_source, @sub_source, @comp_app_date, @lead_url, @raw, @now, @now)
+     @record_source, @sub_source, @comp_app_date, @comp_app_date_iso, @lead_url, @raw, @now, @now)
 `);
 const updateRecord = db.prepare(`
   UPDATE records SET
     name = @name, phone = @phone, email = @email, company = @company,
     address = @address, city = @city, market = @market, product = @product,
     record_source = @record_source, sub_source = @sub_source,
-    comp_app_date = @comp_app_date, lead_url = @lead_url, raw = @raw,
+    comp_app_date = @comp_app_date, comp_app_date_iso = @comp_app_date_iso,
+    lead_url = @lead_url, raw = @raw,
     updated_at = @now,
     geo_status = CASE WHEN @addressChanged = 1 THEN 'Needs Geocoding' ELSE geo_status END,
     geo_fails  = CASE WHEN @addressChanged = 1 THEN 0 ELSE geo_fails END
@@ -136,6 +137,45 @@ app.post('/record-geocode', requireAuth, async (req, res) => {
 
 // ===== Dashboard API =====
 
+const TZ = process.env.DISPLAY_TZ || 'America/Boise';
+
+// The Y-M-D of "now" in the display timezone.
+function todayYmd() {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit',
+  }).formatToParts(new Date());
+  const get = (t) => parts.find((p) => p.type === t).value;
+  return `${get('year')}-${get('month')}-${get('day')}`;
+}
+function addDays(ymd, n) {
+  const d = new Date(ymd + 'T00:00:00Z');
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+// UTC instant corresponding to local midnight of `ymd` in the display timezone.
+function zonedMidnightUtc(ymd) {
+  const utc = new Date(ymd + 'T00:00:00Z');
+  const local = new Date(utc.toLocaleString('en-US', { timeZone: TZ }));
+  const offset = utc.getTime() - local.getTime();
+  return new Date(utc.getTime() + offset).toISOString();
+}
+// Resolve a date_range (+ optional custom from/to) to [startIso, endIso) or null.
+function dateBounds(range, from, to) {
+  const today = todayYmd();
+  let startYmd;
+  let endYmd;
+  if (range === 'today') { startYmd = today; endYmd = addDays(today, 1); }
+  else if (range === 'yesterday') { startYmd = addDays(today, -1); endYmd = today; }
+  else if (range === 'tomorrow') { startYmd = addDays(today, 1); endYmd = addDays(today, 2); }
+  else if (range === 'custom') {
+    if (!from && !to) return null;
+    startYmd = from || to;
+    endYmd = addDays(to || from, 1);
+  } else return null;
+  return { start: zonedMidnightUtc(startYmd), end: zonedMidnightUtc(endYmd) };
+}
+const DATE_COLUMNS = { uploaded: 'uploaded_at', updated: 'updated_at', comp_app_date: 'comp_app_date_iso' };
+
 function buildWhere(q) {
   const where = [];
   const params = {};
@@ -152,6 +192,15 @@ function buildWhere(q) {
   if (q.product) { where.push('product = @product'); params.product = q.product; }
   if (q.geo_status) { where.push('geo_status = @geo_status'); params.geo_status = q.geo_status; }
   if (q.hitlist === 'true') where.push('hitlist = 1');
+
+  // Date range filter on the chosen date field.
+  const col = DATE_COLUMNS[q.date_field] || 'uploaded_at';
+  const bounds = dateBounds(q.date_range, q.date_from, q.date_to);
+  if (bounds) {
+    where.push(`${col} >= @date_start AND ${col} < @date_end`);
+    params.date_start = bounds.start;
+    params.date_end = bounds.end;
+  }
 
   if (q.search) {
     where.push(`(
@@ -196,7 +245,7 @@ app.get('/api/facets', requireAuth, (_req, res) => {
 });
 
 // PATCH /api/records/:id  { address?, lat?, lng?, archived?, hitlist? }
-const patchable = ['address', 'lat', 'lng', 'archived', 'hitlist'];
+const patchable = ['address', 'lat', 'lng', 'archived', 'hitlist', 'scheduled_at'];
 app.patch('/api/records/:id', requireAuth, (req, res) => {
   const body = req.body || {};
   const sets = [];
