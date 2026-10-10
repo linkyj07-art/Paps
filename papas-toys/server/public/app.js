@@ -392,6 +392,7 @@ function openDrawer(id) {
   const inp = (key, label, val) =>
     `<label class="d-in"><span>${label}</span><input class="control" data-edit="${key}" value="${escapeAttr(val || '')}" /></label>`;
 
+  // Not-found leads get a fill-in form (manual entry). Found leads are read-only.
   const editForm = [
     inp('name', 'Name', r.name),
     inp('company', 'Company', r.company),
@@ -406,6 +407,23 @@ function openDrawer(id) {
     inp('comp_app_date', 'Comp App Date', r.comp_app_date),
   ].join('');
 
+  const readView = `
+    <div class="d-section"><h3>Contact</h3><div class="d-grid">${[
+      field('Name', escapeHtml(r.name)),
+      field('Company', escapeHtml(r.company)),
+      field('Phone', r.phone ? link('tel:' + r.phone.replace(/[^0-9+]/g, ''), r.phone) : ''),
+      field('Email', r.email ? link('mailto:' + r.email, r.email) : ''),
+      field('Address', escapeHtml(r.address)),
+      field('City', escapeHtml(r.city)),
+    ].join('')}</div></div>
+    <div class="d-section"><h3>Lead</h3><div class="d-grid">${[
+      field('Market', escapeHtml(r.market)),
+      field('Product', escapeHtml(r.product)),
+      field('Record Source', escapeHtml(r.record_source)),
+      field('Sub Source', escapeHtml(r.sub_source)),
+      field('Comp App Date', escapeHtml(r.comp_app_date)),
+    ].join('')}</div></div>`;
+
   const meta = [
     field('Scheduled', r.scheduled_at ? fmtDate(r.scheduled_at) : '<span class="muted">Not scheduled</span>'),
     field('Uploaded', fmtDate(r.uploaded_at)),
@@ -415,10 +433,12 @@ function openDrawer(id) {
   ].join('');
 
   $('[data-role="d-body"]').innerHTML = `
-    ${isNotFound ? '<div class="d-note">This lead was not found by the scanner. Fill in the details below, then mark it as entered to move it into All Leads.</div>' : ''}
-    <div class="d-section"><h3>Lead details</h3><div class="d-form">${editForm}</div>
-      <button class="btn btn-dark" data-d-action="save">Save details</button>
-    </div>
+    ${isNotFound
+      ? `<div class="d-note">This lead was not found by the scanner. Fill in the details below, then mark it as entered to move it into All Leads.</div>
+         <div class="d-section"><h3>Lead details</h3><div class="d-form">${editForm}</div>
+           <button class="btn btn-dark" data-d-action="save">Save details</button>
+         </div>`
+      : readView}
     <div class="d-section"><h3>Status</h3><div class="d-grid">${meta}</div></div>
     <div class="d-section">
       <h3>Schedule</h3>
