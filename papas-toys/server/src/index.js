@@ -10,6 +10,9 @@ const { normalizeRow } = require('./normalize');
 const { processQueue } = require('./geocode');
 
 const PORT = Number(process.env.PORT || 8080);
+// Geocoding (address -> lat/lng for a map) is optional. Set GEOCODE_ENABLED=false
+// to turn it off entirely — no background queue, no failed-geocode noise.
+const GEOCODE_ENABLED = String(process.env.GEOCODE_ENABLED || 'true').toLowerCase() !== 'false';
 const app = express();
 
 app.use(cors());
@@ -91,9 +94,9 @@ app.post('/record-upload', requireAuth, async (req, res) => {
     return res.status(500).json({ error: 'Upload failed', detail: String((err && err.message) || err) });
   }
 
-  // Queue geocoding (best effort, in the background) when asked.
+  // Queue geocoding (best effort, in the background) when asked — unless disabled.
   let queued = 0;
-  if (body.queueGeocode !== false) {
+  if (GEOCODE_ENABLED && body.queueGeocode !== false) {
     queued = db
       .prepare(
         `SELECT COUNT(*) AS n FROM records
@@ -118,6 +121,9 @@ app.post('/record-upload', requireAuth, async (req, res) => {
 // POST /record-geocode  -> run the geocoding queue now
 app.post('/record-geocode', requireAuth, async (req, res) => {
   const body = req.body || {};
+  if (!GEOCODE_ENABLED) {
+    return res.json({ ok: true, disabled: true, processed: 0, geocoded: 0, failed: 0, remaining: 0 });
+  }
   const limit = Math.min(Number(body.limit || 50), 200);
   const googleFallback = body.googleFallback !== false;
   try {
@@ -229,6 +235,6 @@ app.listen(PORT, () => {
 });
 
 // Light background geocoder so the queue drains without manual pokes.
-setInterval(() => {
+if (GEOCODE_ENABLED) setInterval(() => {
   processQueue({ limit: 10 }).catch(() => {});
 }, 60 * 1000);
