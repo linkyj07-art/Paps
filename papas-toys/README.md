@@ -1,4 +1,4 @@
-# Papa's Toys
+# Bullsleads
 
 Your own backend + admin dashboard for the Record Lookup extension, replacing
 the original `daddy-record-admin.web.app`. The extension scrapes matched records
@@ -9,7 +9,7 @@ geocode, hitlist and archive them.
 papas-toys/
 ├── server/            Node/Express API + static dashboard (deploys to Railway)
 │   ├── src/           API, auth, geocoding, SQLite
-│   ├── public/        the "Papa's Toys" dashboard (HTML/CSS/JS)
+│   ├── public/        the "Bullsleads" dashboard (HTML/CSS/JS)
 │   └── Dockerfile     container image Railway builds
 └── extension/         the Chrome extension, repointed to your backend
                        (only c.js + manifest.json changed; a.js/b.js/p.* unchanged)

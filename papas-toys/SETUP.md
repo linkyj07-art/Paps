@@ -1,4 +1,4 @@
-# Papa's Toys — Detailed Setup Guide
+# Bullsleads — Detailed Setup Guide
 
 This walks you through everything, start to finish, assuming no prior experience
 with Firebase or Railway. Follow it top to bottom. Budget ~45 minutes the first time.
@@ -121,7 +121,7 @@ The code lives in a subfolder, so tell Railway where to look.
 1. Go to **Settings → Networking → Public Networking**.
 2. Click **Generate Domain** (pick the port it offers, usually 8080). 
 3. You'll get a URL like `https://papas-toys-production-xxxx.up.railway.app`.
-4. Open it in your browser. You should see the **Papa's Toys** login screen.
+4. Open it in your browser. You should see the **Bullsleads** login screen.
    - Log in with the Firebase user from step 1.3 to confirm it works. (It'll show
      "No records" until the extension uploads some — that's expected.)
 
