@@ -15,7 +15,23 @@ const state = {
   rows: [],
   total: 0,
   filters: {},
+  selected: new Set(),
 };
+
+async function downloadAuthed(path, fallbackName) {
+  const token = state.user ? await state.user.getIdToken() : '';
+  const res = await fetch(path, { headers: { Authorization: 'Bearer ' + token } });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const cd = res.headers.get('Content-Disposition') || '';
+  const m = /filename="([^"]+)"/.exec(cd);
+  a.download = m ? m[1] : fallbackName;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
 
 async function api(path, opts = {}) {
   const token = state.user ? await state.user.getIdToken() : '';
@@ -105,6 +121,35 @@ function wireEvents() {
     state.offset += state.limit;
     refresh(false);
   });
+
+  $('[data-action="export"]').addEventListener('click', async () => {
+    try { await downloadAuthed('/api/export.csv?' + queryString(), 'bullsleads.csv'); }
+    catch (err) { setStatusNote('Export failed: ' + err.message); }
+  });
+  $('[data-action="backup"]').addEventListener('click', async () => {
+    try { await downloadAuthed('/api/backup', 'bullsleads-backup.json'); }
+    catch (err) { setStatusNote('Backup failed: ' + err.message); }
+  });
+
+  // bulk action bar
+  $('[data-role="select-all"]').addEventListener('change', (e) => {
+    if (e.target.checked) state.rows.forEach((r) => state.selected.add(r.id));
+    else state.selected.clear();
+    renderRows();
+  });
+  $$('[data-bulk]').forEach((b) => b.addEventListener('click', async () => {
+    const action = b.getAttribute('data-bulk');
+    if (action === 'clear') { state.selected.clear(); renderRows(); return; }
+    const ids = [...state.selected];
+    if (!ids.length) return;
+    if (action === 'archive' && !window.confirm(`Archive ${ids.length} lead(s)?`)) return;
+    try {
+      await api('/api/records/bulk', { method: 'POST', body: JSON.stringify({ ids, action }) });
+      state.selected.clear();
+      await loadStats();
+      await refresh(true);
+    } catch (err) { setStatusNote('Bulk action failed: ' + err.message); }
+  }));
 
   $('[data-action="purge-off-market"]').addEventListener('click', async () => {
     try {
@@ -227,8 +272,25 @@ function updateMsLabel(key) {
 // close any open multiselect menu when clicking elsewhere
 document.addEventListener('click', () => { $$('.ms-menu').forEach((m) => { m.hidden = true; }); });
 
+async function loadStats() {
+  try {
+    const s = await api('/api/stats');
+    const tiles = [
+      ['Found leads', s.found],
+      ['Needs entry', s.needsEntry],
+      ['Scheduled today', s.scheduledToday],
+      ['Scheduled this week', s.scheduledWeek],
+      ['Hitlist', s.hitlist],
+    ];
+    const marketTiles = (s.byMarket || []).slice(0, 4)
+      .map((m) => `<div class="stat stat-sm"><div class="stat-n">${m.n}</div><div class="stat-l">${escapeHtml(m.market)}</div></div>`).join('');
+    $('[data-role="stats"]').innerHTML =
+      tiles.map(([l, n]) => `<div class="stat"><div class="stat-n">${n ?? 0}</div><div class="stat-l">${l}</div></div>`).join('') + marketTiles;
+  } catch (_e) { /* non-fatal */ }
+}
+
 async function refresh(reset) {
-  if (reset) { state.offset = 0; state.rows = []; }
+  if (reset) { state.offset = 0; state.rows = []; loadStats(); }
   renderChips();
   setStatus('Loading…');
   try {
@@ -282,18 +344,45 @@ function renderRows() {
   }
   tbody.innerHTML = state.rows.map(rowHtml).join('');
   setStatus(`Showing ${state.rows.length} of ${state.total} records`);
-  // whole row opens the lead detail
+  // row opens the detail, except clicks on the checkbox cell
   $$('tr[data-id]').forEach((tr) => {
     const id = tr.getAttribute('data-id');
-    tr.addEventListener('click', () => openDrawer(id));
+    tr.addEventListener('click', (e) => {
+      if (e.target.closest('.cbcell')) return;
+      openDrawer(id);
+    });
+    const cb = $('input[type="checkbox"]', tr);
+    if (cb) cb.addEventListener('change', () => {
+      if (cb.checked) state.selected.add(id); else state.selected.delete(id);
+      renderBulkBar();
+    });
   });
+  const selAll = $('[data-role="select-all"]');
+  if (selAll) selAll.checked = state.rows.length > 0 && state.rows.every((r) => state.selected.has(r.id));
+  renderBulkBar();
+}
+
+function renderBulkBar() {
+  const bar = $('[data-role="bulkbar"]');
+  const n = state.selected.size;
+  bar.hidden = n === 0;
+  $('[data-role="bulk-count"]').textContent = `${n} selected`;
+}
+
+function isToday(iso) {
+  if (!iso) return false;
+  const tz = { timeZone: 'America/Boise', year: 'numeric', month: '2-digit', day: '2-digit' };
+  return new Date(iso).toLocaleDateString('en-CA', tz) === new Date().toLocaleDateString('en-CA', tz);
 }
 
 function rowHtml(r) {
   const flags = [r.hitlist ? '<span class="tag tag-hit">Hitlist</span>' : '',
     r.archived ? '<span class="tag">Archived</span>' : ''].join('');
+  const checked = state.selected.has(r.id) ? 'checked' : '';
+  const todayCls = isToday(r.scheduled_at) ? ' sched-today' : '';
   return `
-    <tr data-id="${escapeHtml(r.id)}" class="rowlink">
+    <tr data-id="${escapeHtml(r.id)}" class="rowlink${todayCls}">
+      <td class="cbcell"><input type="checkbox" ${checked} /></td>
       <td><div class="rec-name">${escapeHtml(r.name || '(no name)')}</div>
           <div class="muted">${escapeHtml(r.market || '')} ${flags}</div></td>
       <td>${escapeHtml(r.company || '')}</td>
@@ -301,7 +390,7 @@ function rowHtml(r) {
       <td class="muted">${escapeHtml(r.email || '')}</td>
       <td>${escapeHtml(r.product || '')}</td>
       <td class="muted">${escapeHtml(r.comp_app_date || '')}</td>
-      <td class="muted">${r.scheduled_at ? fmtDate(r.scheduled_at) : ''}</td>
+      <td class="muted">${r.scheduled_at ? '<span class="sched-pill">' + fmtDate(r.scheduled_at) + '</span>' : ''}</td>
       <td class="muted">${fmtDate(r.uploaded_at)}</td>
       <td class="chev">›</td>
     </tr>`;

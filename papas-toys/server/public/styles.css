@@ -156,6 +156,29 @@ a { color: inherit; }
 .ms-opt input { width: 17px; height: 17px; accent-color: var(--brand); }
 .ms-empty { padding: 12px; color: var(--muted); }
 
+/* ---- stat strip ---- */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 18px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow); }
+.stat-n { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+.stat-l { color: var(--muted); font-weight: 600; font-size: 12px; margin-top: 2px; }
+.stat-sm { background: var(--surface-2); }
+.stat-sm .stat-n { font-size: 20px; background: linear-gradient(100deg, var(--brand), var(--brand-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* ---- bulk bar ---- */
+.bulkbar { display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: linear-gradient(100deg, var(--brand), var(--brand-2)); color: var(--brand-ink);
+  border-radius: var(--radius); padding: 10px 16px; margin-bottom: 14px; box-shadow: var(--shadow); font-weight: 700; }
+.bulkbar-actions { display: flex; gap: 8px; }
+.bulkbar .btn { min-height: 38px; }
+
+/* checkbox column */
+.cbcol, .cbcell { width: 40px; text-align: center; }
+.cbcell input, .cbcol input { width: 17px; height: 17px; accent-color: var(--brand); cursor: pointer; }
+
+/* scheduled highlighting */
+tr.sched-today { background: color-mix(in srgb, var(--brand) 7%, transparent); }
+.sched-pill { display: inline-block; padding: 2px 9px; border-radius: 999px; background: var(--ok-bg); color: var(--ok); font-weight: 700; font-size: 12px; }
+
 /* ---- tabs ---- */
 .tabs { display: inline-flex; gap: 4px; margin: 4px 0 14px; padding: 4px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px; }
 .tab { padding: 9px 20px; border: none; background: transparent; color: var(--muted); font-weight: 700; border-radius: 999px; transition: .15s; }

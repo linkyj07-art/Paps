@@ -255,6 +255,68 @@ app.get('/api/facets', requireAuth, (_req, res) => {
   });
 });
 
+// Summary stats for the dashboard header.
+app.get('/api/stats', requireAuth, (_req, res) => {
+  const one = (sql, ...p) => db.prepare(sql).get(...p).n;
+  const today = dateBounds('today');
+  const weekStart = today.start;
+  const weekEnd = zonedMidnightUtc(addDays(todayYmd(), 7));
+  res.json({
+    found: one(`SELECT COUNT(*) n FROM records WHERE archived=0 AND lead_status='found'`),
+    needsEntry: one(`SELECT COUNT(*) n FROM records WHERE archived=0 AND lead_status='not_found'`),
+    hitlist: one(`SELECT COUNT(*) n FROM records WHERE archived=0 AND hitlist=1`),
+    scheduledToday: one(`SELECT COUNT(*) n FROM records WHERE scheduled_at >= ? AND scheduled_at < ?`, today.start, today.end),
+    scheduledWeek: one(`SELECT COUNT(*) n FROM records WHERE scheduled_at >= ? AND scheduled_at < ?`, weekStart, weekEnd),
+    byMarket: db.prepare(`SELECT COALESCE(NULLIF(TRIM(market),''),'(none)') AS market, COUNT(*) AS n
+      FROM records WHERE archived=0 AND lead_status='found' GROUP BY market ORDER BY n DESC`).all(),
+  });
+});
+
+// CSV export of the current filtered view (same filters as /api/records).
+const CSV_COLUMNS = ['name', 'company', 'phone', 'email', 'address', 'city', 'market',
+  'product', 'record_source', 'sub_source', 'comp_app_date', 'scheduled_at',
+  'lead_status', 'hitlist', 'archived', 'uploaded_at', 'updated_at', 'id'];
+function csvCell(v) {
+  const s = v == null ? '' : String(v);
+  return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+app.get('/api/export.csv', requireAuth, (req, res) => {
+  const { clause, params } = buildWhere(req.query || {});
+  const rows = db.prepare(`SELECT * FROM records ${clause} ORDER BY uploaded_at DESC`).all(params);
+  const lines = [CSV_COLUMNS.join(',')];
+  for (const r of rows) lines.push(CSV_COLUMNS.map((c) => csvCell(r[c])).join(','));
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', `attachment; filename="bullsleads-${todayYmd()}.csv"`);
+  res.send(lines.join('\n'));
+});
+
+// Full JSON backup of every record.
+app.get('/api/backup', requireAuth, (_req, res) => {
+  const rows = db.prepare('SELECT * FROM records ORDER BY uploaded_at').all();
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Content-Disposition', `attachment; filename="bullsleads-backup-${todayYmd()}.json"`);
+  res.send(JSON.stringify({ exportedAt: new Date().toISOString(), count: rows.length, records: rows }, null, 2));
+});
+
+// Bulk actions on many leads at once.
+app.post('/api/records/bulk', requireAuth, (req, res) => {
+  const body = req.body || {};
+  const ids = Array.isArray(body.ids) ? body.ids.filter(Boolean) : [];
+  const action = body.action;
+  if (!ids.length) return res.status(400).json({ error: 'No ids' });
+  const now = new Date().toISOString();
+  const place = ids.map(() => '?').join(',');
+  const SET = {
+    archive: 'archived = 1',
+    unarchive: 'archived = 0',
+    hitlist: 'hitlist = 1',
+    unhitlist: 'hitlist = 0',
+  }[action];
+  if (!SET) return res.status(400).json({ error: 'Unknown action' });
+  const info = db.prepare(`UPDATE records SET ${SET}, updated_at = ? WHERE id IN (${place})`).run(now, ...ids);
+  res.json({ ok: true, updated: info.changes });
+});
+
 // PATCH /api/records/:id  — edit lead fields, schedule, status, flags.
 const patchable = [
   'name', 'phone', 'email', 'company', 'address', 'city',

@@ -38,13 +38,27 @@
     <main class="wrap">
       <!-- ===== Records page ===== -->
       <section data-page="records">
+        <div class="stats" data-role="stats"></div>
+
         <div class="searchrow">
           <input data-role="search" placeholder="Search records" />
+          <button class="btn" data-action="export" title="Download the current filtered leads as CSV">Export CSV</button>
+          <button class="btn" data-action="backup" title="Download a full JSON backup of all leads">Backup</button>
           <button class="btn" data-action="load-older">Load older</button>
           <button class="btn" data-action="purge-off-market" title="Delete leads not in Boise / Twin Falls / Idaho Falls">Clean markets</button>
         </div>
 
         <div class="chips" data-role="chips"></div>
+
+        <div class="bulkbar" data-role="bulkbar" hidden>
+          <span data-role="bulk-count">0 selected</span>
+          <div class="bulkbar-actions">
+            <button class="btn" data-bulk="hitlist">Hitlist</button>
+            <button class="btn" data-bulk="unhitlist">Un-hitlist</button>
+            <button class="btn btn-danger" data-bulk="archive">Archive</button>
+            <button class="btn" data-bulk="clear">Clear selection</button>
+          </div>
+        </div>
 
         <div class="filters">
           <div class="field">
@@ -114,6 +128,7 @@
           <table>
             <thead>
               <tr>
+                <th class="cbcol"><input type="checkbox" data-role="select-all" /></th>
                 <th>Record</th><th>Company</th><th>Phone</th><th>Email</th>
                 <th>Product</th><th>Comp App Date</th><th>Scheduled</th><th>Uploaded</th><th></th>
               </tr>
