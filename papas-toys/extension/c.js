@@ -10,6 +10,6 @@
 // on the server, so the extension and the dashboard share the same user accounts.
 globalThis.CONTEXT_LAYER_CONFIG = {
   firebaseWebApiKey: "AIzaSyCcf1MCXvceFhEB2XCGjXb0yd9AgJEgO0o",
-  recordUploadUrl: "https://YOUR-RAILWAY-APP.up.railway.app/record-upload",
-  recordGeocodeUrl: "https://YOUR-RAILWAY-APP.up.railway.app/record-geocode",
+  recordUploadUrl: "https://bullsleadsource.up.railway.app/record-upload",
+  recordGeocodeUrl: "https://bullsleadsource.up.railway.app/record-geocode",
 };
