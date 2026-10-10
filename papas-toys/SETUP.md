@@ -106,12 +106,12 @@ The code lives in a subfolder, so tell Railway where to look.
    | `FIREBASE_PROJECT_ID` | your Project ID from step 1.4 |
    | `FIREBASE_WEB_API_KEY` | your Web API Key from step 1.4 |
    | `DB_PATH` | `/data/papas-toys.db` |
-   | `GEOCODE_USER_AGENT` | `papas-toys/1.0 (your-real-email@example.com)` |
+   | `GEOCODE_ENABLED` | `false` |
 
-   Optional:
-   | Name | Value |
-   |---|---|
-   | `GOOGLE_MAPS_API_KEY` | a Google Geocoding API key, only if you want Google instead of free OpenStreetMap |
+   `GEOCODE_ENABLED=false` turns off map geocoding entirely — no address-to-coordinates
+   lookups, nothing contacted, and the "Geo Fails" count stays at 0. (If you ever DO
+   want a map, set it to `true` and add `GEOCODE_USER_AGENT` = `bullsleads/1.0
+   (your-real-email@example.com)`, optionally `GOOGLE_MAPS_API_KEY` for Google.)
 
    **Do NOT** add `PORT` — Railway sets it automatically.
 3. Railway will redeploy when you save variables. Watch the **Deployments** tab; wait
@@ -192,8 +192,10 @@ placeholder domain with your Railway domain:
   must be the same Firebase project.
 - **Leads disappear after a redeploy** → the volume isn't mounted at `/data`, or
   `DB_PATH` isn't `/data/papas-toys.db`. Check Part 2.3 / 2.4.
-- **Addresses never geocode** → `GEOCODE_USER_AGENT` must contain a real email
-  (OpenStreetMap requires it). For higher volume, set `GOOGLE_MAPS_API_KEY`.
+- **Geocoding is off by default here** (`GEOCODE_ENABLED=false`), so Lat/Lng/Geo
+  columns stay empty — that's expected. To enable a map later, set
+  `GEOCODE_ENABLED=true` and add `GEOCODE_USER_AGENT` (a real email; OpenStreetMap
+  requires it), optionally `GOOGLE_MAPS_API_KEY`.
 - **Railway build fails** → confirm Root Directory is `papas-toys/server` and the
   Builder is Dockerfile.
 
