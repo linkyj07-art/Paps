@@ -9,7 +9,7 @@
 // This is the same Firebase project you set as FIREBASE_PROJECT_ID / FIREBASE_WEB_API_KEY
 // on the server, so the extension and the dashboard share the same user accounts.
 globalThis.CONTEXT_LAYER_CONFIG = {
-  firebaseWebApiKey: "YOUR_FIREBASE_WEB_API_KEY",
+  firebaseWebApiKey: "AIzaSyCcf1MCXvceFhEB2XCGjXb0yd9AgJEgO0o",
   recordUploadUrl: "https://YOUR-RAILWAY-APP.up.railway.app/record-upload",
   recordGeocodeUrl: "https://YOUR-RAILWAY-APP.up.railway.app/record-geocode",
 };
