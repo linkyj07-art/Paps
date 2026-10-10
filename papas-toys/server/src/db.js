@@ -53,5 +53,7 @@ function ensureColumn(table, column, ddl) {
 }
 ensureColumn('records', 'comp_app_date_iso', 'comp_app_date_iso TEXT'); // parsed appt date for filtering
 ensureColumn('records', 'scheduled_at', 'scheduled_at TEXT');           // user-set schedule on a lead
+ensureColumn('records', 'lead_status', "lead_status TEXT NOT NULL DEFAULT 'found'"); // found | not_found
+db.exec(`CREATE INDEX IF NOT EXISTS idx_records_lead_status ON records(lead_status);`);
 
 module.exports = db;

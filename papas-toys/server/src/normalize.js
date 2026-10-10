@@ -72,6 +72,7 @@ function normalizeRow(row) {
     sub_source: firstNonEmpty(row.subSource),
     comp_app_date: compAppDate,
     comp_app_date_iso: toIso(compAppDate),
+    lead_status: String(row.searchStatus || '').toLowerCase() === 'not_found' ? 'not_found' : 'found',
     lead_url: firstNonEmpty(row.leadUrl, sr.href),
     raw: JSON.stringify(row),
   };

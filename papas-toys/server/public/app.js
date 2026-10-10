@@ -106,20 +106,14 @@ function wireEvents() {
     refresh(false);
   });
 
-  $('[data-action="geocode"]').addEventListener('click', async (e) => {
-    e.target.disabled = true;
-    e.target.textContent = 'Geocoding…';
-    try {
-      const r = await api('/record-geocode', { method: 'POST', body: JSON.stringify({ limit: 100 }) });
-      await refresh(true);
-      setStatusNote(`Geocoded ${r.geocoded}, failed ${r.failed}, ${r.remaining} remaining`);
-    } catch (err) {
-      setStatusNote('Geocode error: ' + err.message);
-    } finally {
-      e.target.disabled = false;
-      e.target.textContent = 'Run Geocoding';
-    }
-  });
+  // Top-nav page switching (Records / Calendar / Routes)
+  $$('.nav a').forEach((a) => a.addEventListener('click', (e) => {
+    e.preventDefault();
+    const page = a.getAttribute('href').replace('#', '');
+    $$('.nav a').forEach((x) => x.classList.toggle('active', x === a));
+    $$('[data-page]').forEach((s) => { s.hidden = s.getAttribute('data-page') !== page; });
+    if (page === 'calendar') renderCalendar();
+  }));
 
   $$('.tab').forEach((t) => t.addEventListener('click', () => {
     $$('.tab').forEach((x) => x.classList.toggle('active', x === t));
@@ -157,7 +151,6 @@ function queryString() {
   if (f.record_source) p.set('record_source', f.record_source);
   if (f.product) p.set('product', f.product);
   if (f.sub_source) p.set('sub_source', f.sub_source);
-  if (f.geo_status) p.set('geo_status', f.geo_status);
   if (f.hitlist) p.set('hitlist', 'true');
   if (f.date_range) {
     p.set('date_field', f.date_field || 'comp_app_date');
@@ -182,7 +175,7 @@ async function loadFacets() {
         facets[key].map((v) => `<option>${escapeHtml(v)}</option>`).join('');
       sel.value = cur;
     };
-    ['market', 'record_source', 'product', 'sub_source', 'geo_status'].forEach(fill);
+    ['market', 'record_source', 'product', 'sub_source'].forEach(fill);
   } catch (_e) { /* non-fatal */ }
 }
 
@@ -236,40 +229,28 @@ function renderRows() {
   }
   tbody.innerHTML = state.rows.map(rowHtml).join('');
   setStatus(`Showing ${state.rows.length} of ${state.total} records`);
-  // wire per-row controls
+  // whole row opens the lead detail
   $$('tr[data-id]').forEach((tr) => {
     const id = tr.getAttribute('data-id');
-    $('[data-role="addr"]', tr).addEventListener('change', (e) => patch(id, { address: e.target.value }));
-    $$('[data-ll]', tr).forEach((inp) => inp.addEventListener('change', () => {
-      const lat = parseFloat($('[data-ll="lat"]', tr).value);
-      const lng = parseFloat($('[data-ll="lng"]', tr).value);
-      patch(id, { lat: Number.isFinite(lat) ? lat : null, lng: Number.isFinite(lng) ? lng : null });
-    }));
-    $('[data-action="hitlist"]', tr).addEventListener('click', () => patch(id, { hitlist: 1 }));
-    $('[data-action="archive"]', tr).addEventListener('click', () => patch(id, { archived: 1 }, true));
-    $('[data-role="open"]', tr).addEventListener('click', () => openDrawer(id));
+    tr.addEventListener('click', () => openDrawer(id));
   });
 }
 
 function rowHtml(r) {
-  const geoClass = r.geo_status === 'Geocoded' || r.geo_status === 'Manual' ? 'geo-ok'
-    : r.geo_status === 'Failed' ? 'geo-failed' : 'geo-needs';
+  const flags = [r.hitlist ? '<span class="tag tag-hit">Hitlist</span>' : '',
+    r.archived ? '<span class="tag">Archived</span>' : ''].join('');
   return `
-    <tr data-id="${escapeHtml(r.id)}">
-      <td><div class="rec-name" data-role="open">${escapeHtml(r.name || '(no name)')}</div>
-          <div class="muted">${escapeHtml(r.market || '')}</div></td>
-      <td class="muted">${fmtDate(r.uploaded_at)}</td>
-      <td class="muted">${fmtDate(r.updated_at)}</td>
+    <tr data-id="${escapeHtml(r.id)}" class="rowlink">
+      <td><div class="rec-name">${escapeHtml(r.name || '(no name)')}</div>
+          <div class="muted">${escapeHtml(r.market || '')} ${flags}</div></td>
+      <td>${escapeHtml(r.company || '')}</td>
       <td>${escapeHtml(r.phone || '')}</td>
-      <td><input class="addr-input" data-role="addr" value="${escapeAttr(r.address || '')}" /></td>
-      <td><input class="ll-input" data-ll="lat" value="${r.lat ?? ''}" /></td>
-      <td><input class="ll-input" data-ll="lng" value="${r.lng ?? ''}" /></td>
-      <td class="geo ${geoClass}">${escapeHtml(r.geo_status || '')}</td>
-      <td>${r.geo_fails ?? 0}</td>
-      <td><div class="rowbtns">
-        <button class="btn" data-action="hitlist">Hitlist</button>
-        <button class="btn btn-danger" data-action="archive">Archive</button>
-      </div></td>
+      <td class="muted">${escapeHtml(r.email || '')}</td>
+      <td>${escapeHtml(r.product || '')}</td>
+      <td class="muted">${escapeHtml(r.comp_app_date || '')}</td>
+      <td class="muted">${r.scheduled_at ? fmtDate(r.scheduled_at) : ''}</td>
+      <td class="muted">${fmtDate(r.uploaded_at)}</td>
+      <td class="chev">›</td>
     </tr>`;
 }
 
@@ -289,6 +270,45 @@ async function patch(id, body, removeRow = false) {
   } catch (err) {
     setStatusNote('Update failed: ' + err.message);
   }
+}
+
+// ---------- calendar ----------
+async function renderCalendar() {
+  const el = $('[data-role="calendar"]');
+  el.innerHTML = '<div class="status">Loading…</div>';
+  try {
+    const data = await api('/api/records?scheduled=true&limit=500');
+    const rows = (data.rows || []).filter((r) => r.scheduled_at);
+    if (!rows.length) { el.innerHTML = '<div class="status">No scheduled leads yet.</div>'; return; }
+    rows.sort((a, b) => new Date(a.scheduled_at) - new Date(b.scheduled_at));
+    const groups = {};
+    rows.forEach((r) => { (groups[calDateKey(r.scheduled_at)] = groups[calDateKey(r.scheduled_at)] || []).push(r); });
+    el.innerHTML = Object.entries(groups).map(([day, items]) => `
+      <div class="cal-day">
+        <div class="cal-date">${escapeHtml(day)}</div>
+        <div class="cal-items">
+          ${items.map((r) => `
+            <button class="cal-item" data-id="${escapeAttr(r.id)}">
+              <span class="cal-time">${escapeHtml(calTime(r.scheduled_at))}</span>
+              <span class="cal-name">${escapeHtml(r.name || '(no name)')}</span>
+              <span class="cal-appt">${r.comp_app_date ? 'Appt: ' + escapeHtml(r.comp_app_date) : ''}</span>
+            </button>`).join('')}
+        </div>
+      </div>`).join('');
+    $$('.cal-item', el).forEach((b) => b.addEventListener('click', () => {
+      const id = b.getAttribute('data-id');
+      if (!state.rows.find((x) => x.id === id)) state.rows.push(rows.find((x) => x.id === id));
+      openDrawer(id);
+    }));
+  } catch (err) {
+    el.innerHTML = '<div class="status">Error: ' + escapeHtml(err.message) + '</div>';
+  }
+}
+function calDateKey(iso) {
+  return new Date(iso).toLocaleDateString('en-US', { timeZone: 'America/Boise', weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
+}
+function calTime(iso) {
+  return new Date(iso).toLocaleTimeString('en-US', { timeZone: 'America/Boise', hour: 'numeric', minute: '2-digit' });
 }
 
 // ---------- lead detail drawer ----------
@@ -315,35 +335,37 @@ function openDrawer(id) {
   let raw = {};
   try { raw = r.raw ? JSON.parse(r.raw) : {}; } catch (_e) { /* ignore */ }
 
-  const contact = [
-    field('Name', escapeHtml(r.name)),
-    field('Company', escapeHtml(r.company)),
-    field('Phone', r.phone ? link('tel:' + r.phone.replace(/[^0-9+]/g, ''), r.phone) : ''),
-    field('Email', r.email ? link('mailto:' + r.email, r.email) : ''),
-    field('Address', escapeHtml(r.address)),
-    field('City', escapeHtml(r.city)),
-  ].join('');
+  const isNotFound = r.lead_status === 'not_found';
+  const inp = (key, label, val) =>
+    `<label class="d-in"><span>${label}</span><input class="control" data-edit="${key}" value="${escapeAttr(val || '')}" /></label>`;
 
-  const lead = [
-    field('Market', escapeHtml(r.market)),
-    field('Product', escapeHtml(r.product)),
-    field('Record Source', escapeHtml(r.record_source)),
-    field('Sub Source', escapeHtml(r.sub_source)),
-    field('Comp App Date', escapeHtml(r.comp_app_date)),
+  const editForm = [
+    inp('name', 'Name', r.name),
+    inp('company', 'Company', r.company),
+    inp('phone', 'Phone', r.phone),
+    inp('email', 'Email', r.email),
+    inp('address', 'Address', r.address),
+    inp('city', 'City', r.city),
+    inp('market', 'Market', r.market),
+    inp('product', 'Product', r.product),
+    inp('record_source', 'Record Source', r.record_source),
+    inp('sub_source', 'Sub Source', r.sub_source),
+    inp('comp_app_date', 'Comp App Date', r.comp_app_date),
   ].join('');
 
   const meta = [
     field('Scheduled', r.scheduled_at ? fmtDate(r.scheduled_at) : '<span class="muted">Not scheduled</span>'),
     field('Uploaded', fmtDate(r.uploaded_at)),
     field('Last Updated', fmtDate(r.updated_at)),
-    field('Hitlist', r.hitlist ? 'Yes' : 'No'),
-    field('Archived', r.archived ? 'Yes' : 'No'),
+    field('Status', isNotFound ? '<span class="badge badge-warn">Needs entry</span>' : '<span class="badge badge-ok">Found</span>'),
     field('Record ID', escapeHtml(r.id)),
   ].join('');
 
   $('[data-role="d-body"]').innerHTML = `
-    <div class="d-section"><h3>Contact</h3><div class="d-grid">${contact}</div></div>
-    <div class="d-section"><h3>Lead</h3><div class="d-grid">${lead}</div></div>
+    ${isNotFound ? '<div class="d-note">This lead was not found by the scanner. Fill in the details below, then mark it as entered to move it into All Leads.</div>' : ''}
+    <div class="d-section"><h3>Lead details</h3><div class="d-form">${editForm}</div>
+      <button class="btn btn-dark" data-d-action="save">Save details</button>
+    </div>
     <div class="d-section"><h3>Status</h3><div class="d-grid">${meta}</div></div>
     <div class="d-section">
       <h3>Schedule</h3>
@@ -354,6 +376,7 @@ function openDrawer(id) {
       </div>
     </div>
     <div class="d-actions">
+      ${isNotFound ? '<button class="btn btn-dark" data-d-action="entered">Mark as entered</button>' : ''}
       <button class="btn" data-d-action="hitlist">${r.hitlist ? 'On Hitlist ✓' : 'Add to Hitlist'}</button>
       <button class="btn btn-danger" data-d-action="archive">${r.archived ? 'Archived' : 'Archive'}</button>
     </div>
@@ -361,19 +384,31 @@ function openDrawer(id) {
   `;
 
   const body = $('[data-role="d-body"]');
-  const h = $('[data-d-action="hitlist"]', body);
-  const a = $('[data-d-action="archive"]', body);
-  const s = $('[data-d-action="schedule"]', body);
-  const u = $('[data-d-action="unschedule"]', body);
-  if (h) h.addEventListener('click', async () => { await patch(id, { hitlist: r.hitlist ? 0 : 1 }); openDrawer(id); });
-  if (a) a.addEventListener('click', async () => { await patch(id, { archived: 1 }, true); closeDrawer(); });
-  if (s) s.addEventListener('click', async () => {
+  const on = (sel, fn) => { const el = $(sel, body); if (el) el.addEventListener('click', fn); };
+
+  on('[data-d-action="save"]', async () => {
+    const patchBody = {};
+    $$('[data-edit]', body).forEach((el) => { patchBody[el.getAttribute('data-edit')] = el.value.trim(); });
+    await patch(id, patchBody);
+    setStatusNote('Saved');
+    openDrawer(id);
+  });
+  on('[data-d-action="entered"]', async () => {
+    // Save any edits AND flip status to found so it moves to All Leads.
+    const patchBody = { lead_status: 'found' };
+    $$('[data-edit]', body).forEach((el) => { patchBody[el.getAttribute('data-edit')] = el.value.trim(); });
+    await patch(id, patchBody, true);
+    closeDrawer();
+  });
+  on('[data-d-action="hitlist"]', async () => { await patch(id, { hitlist: r.hitlist ? 0 : 1 }); openDrawer(id); });
+  on('[data-d-action="archive"]', async () => { await patch(id, { archived: 1 }, true); closeDrawer(); });
+  on('[data-d-action="schedule"]', async () => {
     const v = $('[data-role="sched-input"]', body).value;
     if (!v) { setStatusNote('Pick a date/time first'); return; }
     await patch(id, { scheduled_at: new Date(v).toISOString() });
     openDrawer(id);
   });
-  if (u) u.addEventListener('click', async () => { await patch(id, { scheduled_at: null }); openDrawer(id); });
+  on('[data-d-action="unschedule"]', async () => { await patch(id, { scheduled_at: null }); openDrawer(id); });
 
   $('[data-role="drawer"]').hidden = false;
   $('[data-role="drawer-overlay"]').hidden = false;

@@ -36,10 +36,10 @@ const getExisting = db.prepare('SELECT id, address FROM records WHERE id = ?');
 const insertRecord = db.prepare(`
   INSERT INTO records
     (id, name, phone, email, company, address, city, market, product,
-     record_source, sub_source, comp_app_date, comp_app_date_iso, lead_url, raw, uploaded_at, updated_at)
+     record_source, sub_source, comp_app_date, comp_app_date_iso, lead_status, lead_url, raw, uploaded_at, updated_at)
   VALUES
     (@id, @name, @phone, @email, @company, @address, @city, @market, @product,
-     @record_source, @sub_source, @comp_app_date, @comp_app_date_iso, @lead_url, @raw, @now, @now)
+     @record_source, @sub_source, @comp_app_date, @comp_app_date_iso, @lead_status, @lead_url, @raw, @now, @now)
 `);
 const updateRecord = db.prepare(`
   UPDATE records SET
@@ -49,6 +49,8 @@ const updateRecord = db.prepare(`
     comp_app_date = @comp_app_date, comp_app_date_iso = @comp_app_date_iso,
     lead_url = @lead_url, raw = @raw,
     updated_at = @now,
+    -- never downgrade a lead that's already found (incl. manually completed)
+    lead_status = CASE WHEN @lead_status = 'found' THEN 'found' ELSE lead_status END,
     geo_status = CASE WHEN @addressChanged = 1 THEN 'Needs Geocoding' ELSE geo_status END,
     geo_fails  = CASE WHEN @addressChanged = 1 THEN 0 ELSE geo_fails END
   WHERE id = @id
@@ -179,10 +181,10 @@ const DATE_COLUMNS = { uploaded: 'uploaded_at', updated: 'updated_at', comp_app_
 function buildWhere(q) {
   const where = [];
   const params = {};
-  // Needs Fix tab = anything not cleanly geocoded.
-  if (q.tab === 'needsfix') {
-    where.push(`(geo_status <> 'Geocoded' OR lat IS NULL OR lng IS NULL)`);
-  }
+  // Tabs: "needsentry" = not-found leads awaiting manual entry; otherwise the
+  // main list shows found/completed leads only.
+  if (q.tab === 'needsentry') where.push(`lead_status = 'not_found'`);
+  else where.push(`lead_status = 'found'`);
   if (q.archived === 'true') where.push('archived = 1');
   else if (q.archived === 'all') { /* no filter */ }
   else where.push('archived = 0');
@@ -192,6 +194,7 @@ function buildWhere(q) {
   if (q.product) { where.push('product = @product'); params.product = q.product; }
   if (q.geo_status) { where.push('geo_status = @geo_status'); params.geo_status = q.geo_status; }
   if (q.hitlist === 'true') where.push('hitlist = 1');
+  if (q.scheduled === 'true') where.push('scheduled_at IS NOT NULL');
 
   // Date range filter on the chosen date field.
   const col = DATE_COLUMNS[q.date_field] || 'uploaded_at';
@@ -244,8 +247,12 @@ app.get('/api/facets', requireAuth, (_req, res) => {
   });
 });
 
-// PATCH /api/records/:id  { address?, lat?, lng?, archived?, hitlist? }
-const patchable = ['address', 'lat', 'lng', 'archived', 'hitlist', 'scheduled_at'];
+// PATCH /api/records/:id  — edit lead fields, schedule, status, flags.
+const patchable = [
+  'name', 'phone', 'email', 'company', 'address', 'city',
+  'market', 'product', 'record_source', 'sub_source', 'comp_app_date',
+  'lat', 'lng', 'archived', 'hitlist', 'scheduled_at', 'lead_status',
+];
 app.patch('/api/records/:id', requireAuth, (req, res) => {
   const body = req.body || {};
   const sets = [];
@@ -256,11 +263,11 @@ app.patch('/api/records/:id', requireAuth, (req, res) => {
       params[key] = key === 'archived' || key === 'hitlist' ? (body[key] ? 1 : 0) : body[key];
     }
   }
-  if ('address' in body) {
-    sets.push(`geo_status = 'Needs Geocoding'`, 'geo_fails = 0');
-  }
-  if (('lat' in body || 'lng' in body) && !('address' in body)) {
-    sets.push(`geo_status = 'Manual'`);
+  // Keep the parsed appointment date in sync when edited manually.
+  if ('comp_app_date' in body) {
+    const ms = Date.parse(String(body.comp_app_date || ''));
+    sets.push('comp_app_date_iso = @comp_app_date_iso');
+    params.comp_app_date_iso = Number.isNaN(ms) ? null : new Date(ms).toISOString();
   }
   if (!sets.length) return res.status(400).json({ error: 'Nothing to update' });
 

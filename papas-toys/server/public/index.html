@@ -33,87 +33,92 @@
     </header>
 
     <main class="wrap">
-      <div class="searchrow">
-        <input data-role="search" placeholder="Search records" />
-        <button class="btn" data-action="load-older">Load older</button>
-        <button class="btn" data-action="geocode">Run Geocoding</button>
-      </div>
-
-      <div class="chips" data-role="chips"></div>
-
-      <div class="filters">
-        <div class="field">
-          <label>Date Field</label>
-          <select data-filter="date_field">
-            <option value="comp_app_date">Comp App Date</option>
-            <option value="uploaded">Uploaded</option>
-            <option value="updated">Last Updated</option>
-          </select>
+      <!-- ===== Records page ===== -->
+      <section data-page="records">
+        <div class="searchrow">
+          <input data-role="search" placeholder="Search records" />
+          <button class="btn" data-action="load-older">Load older</button>
         </div>
-        <div class="field">
-          <label>Date Range</label>
-          <select data-filter="date_range">
-            <option value="">All</option>
-            <option value="yesterday">Yesterday</option>
-            <option value="today">Today</option>
-            <option value="tomorrow">Tomorrow</option>
-            <option value="custom">Custom…</option>
-          </select>
-        </div>
-        <div class="field" data-role="custom-range" hidden>
-          <label>Custom Range</label>
-          <div class="daterow">
-            <input type="date" class="control" data-filter="date_from" aria-label="From date" />
-            <span class="to">to</span>
-            <input type="date" class="control" data-filter="date_to" aria-label="To date" />
+
+        <div class="chips" data-role="chips"></div>
+
+        <div class="filters">
+          <div class="field">
+            <label>Date Field</label>
+            <select data-filter="date_field">
+              <option value="comp_app_date">Comp App Date</option>
+              <option value="uploaded">Uploaded</option>
+              <option value="updated">Last Updated</option>
+            </select>
           </div>
-        </div>
-        <div class="field">
-          <label>Product</label>
-          <select data-filter="product"><option value="">Any</option></select>
-        </div>
-        <div class="field">
-          <label>Market</label>
-          <select data-filter="market"><option value="">Any</option></select>
-        </div>
-        <div class="field">
-          <label>Record Source</label>
-          <select data-filter="record_source"><option value="">Any</option></select>
+          <div class="field">
+            <label>Date Range</label>
+            <select data-filter="date_range">
+              <option value="">All</option>
+              <option value="yesterday">Yesterday</option>
+              <option value="today">Today</option>
+              <option value="tomorrow">Tomorrow</option>
+              <option value="custom">Custom…</option>
+            </select>
+          </div>
+          <div class="field" data-role="custom-range" hidden>
+            <label>Custom Range</label>
+            <div class="daterow">
+              <input type="date" class="control" data-filter="date_from" aria-label="From date" />
+              <span class="to">to</span>
+              <input type="date" class="control" data-filter="date_to" aria-label="To date" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Product</label>
+            <select data-filter="product"><option value="">Any</option></select>
+          </div>
+          <div class="field">
+            <label>Market</label>
+            <select data-filter="market"><option value="">Any</option></select>
+          </div>
+          <div class="field">
+            <label>Record Source</label>
+            <select data-filter="record_source"><option value="">Any</option></select>
+          </div>
+          <div class="field">
+            <label>Sub Source</label>
+            <select data-filter="sub_source"><option value="">Any</option></select>
+          </div>
+          <label class="control check"><input type="checkbox" data-filter="hitlist" /> <span class="lbl">Hitlist Only</span></label>
+          <label class="control check"><input type="checkbox" data-filter="show_archived" /> <span class="lbl">Show Archived</span></label>
         </div>
 
-        <label class="control check"><input type="checkbox" data-filter="hitlist" /> <span class="lbl">Hitlist Only</span></label>
-        <div class="field">
-          <label>Sub Source</label>
-          <select data-filter="sub_source"><option value="">Any</option></select>
+        <div class="tabs">
+          <button class="tab active" data-tab="all">All Leads</button>
+          <button class="tab" data-tab="needsentry">Needs Entry</button>
         </div>
 
-        <div class="field">
-          <label>Geo Status</label>
-          <select data-filter="geo_status"><option value="">Any</option></select>
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Record</th><th>Company</th><th>Phone</th><th>Email</th>
+                <th>Product</th><th>Comp App Date</th><th>Scheduled</th><th>Uploaded</th><th></th>
+              </tr>
+            </thead>
+            <tbody data-role="rows"></tbody>
+          </table>
+          <div class="status" data-role="status">Loading…</div>
         </div>
-        <label class="control check"><input type="checkbox" data-filter="show_archived" /> <span class="lbl">Show Archived</span></label>
-        <div class="control"><span class="lbl">Location</span><span class="val">Any</span></div>
-        <div class="control"><span class="lbl">Door</span><span class="val">Any</span></div>
-        <div class="control"><span class="lbl">Call</span><span class="val">Any</span></div>
-      </div>
+      </section>
 
-      <div class="tabs">
-        <button class="tab active" data-tab="all">All Leads</button>
-        <button class="tab" data-tab="needsfix">Needs Fix</button>
-      </div>
+      <!-- ===== Calendar page ===== -->
+      <section data-page="calendar" hidden>
+        <h2 class="page-title">Scheduled Leads</h2>
+        <div class="cal" data-role="calendar"></div>
+      </section>
 
-      <div class="tablewrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Record</th><th>Uploaded</th><th>Last Updated</th><th>Phone</th>
-              <th>Address</th><th>Lat</th><th>Lng</th><th>Geo</th><th>Geo Fails</th><th>Archive</th>
-            </tr>
-          </thead>
-          <tbody data-role="rows"></tbody>
-        </table>
-        <div class="status" data-role="status">Loading…</div>
-      </div>
+      <!-- ===== Routes page ===== -->
+      <section data-page="routes" hidden>
+        <h2 class="page-title">Routes</h2>
+        <p class="muted">Coming soon.</p>
+      </section>
     </main>
 
     <!-- ===== Lead detail drawer ===== -->
