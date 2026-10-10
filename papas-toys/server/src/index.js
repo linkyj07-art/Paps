@@ -189,10 +189,18 @@ function buildWhere(q) {
   else if (q.archived === 'all') { /* no filter */ }
   else where.push('archived = 0');
 
-  if (q.market) { where.push('market = @market'); params.market = q.market; }
-  if (q.record_source) { where.push('record_source = @record_source'); params.record_source = q.record_source; }
-  if (q.product) { where.push('product = @product'); params.product = q.product; }
-  if (q.geo_status) { where.push('geo_status = @geo_status'); params.geo_status = q.geo_status; }
+  // Multi-value filters: comma-separated -> IN (...)
+  const inClause = (col, raw) => {
+    const vals = String(raw || '').split(',').map((s) => s.trim()).filter(Boolean);
+    if (!vals.length) return;
+    const keys = vals.map((_v, i) => `@${col}_${i}`);
+    where.push(`${col} IN (${keys.join(', ')})`);
+    vals.forEach((v, i) => { params[`${col}_${i}`] = v; });
+  };
+  inClause('market', q.market);
+  inClause('record_source', q.record_source);
+  inClause('product', q.product);
+  inClause('sub_source', q.sub_source);
   if (q.hitlist === 'true') where.push('hitlist = 1');
   if (q.scheduled === 'true') where.push('scheduled_at IS NOT NULL');
 
@@ -276,6 +284,22 @@ app.patch('/api/records/:id', requireAuth, (req, res) => {
     .run(params);
   if (!info.changes) return res.status(404).json({ error: 'Not found' });
   res.json({ ok: true, record: db.prepare('SELECT * FROM records WHERE id = ?').get(req.params.id) });
+});
+
+// Markets we keep. Everything else can be purged.
+const ALLOWED_MARKETS = ['boise', 'twin falls', 'idaho falls'];
+const marketPredicate = `LOWER(TRIM(COALESCE(market,''))) NOT IN (${ALLOWED_MARKETS.map(() => '?').join(',')})`;
+
+// GET how many off-market leads exist (for a confirm prompt).
+app.get('/api/admin/off-market-count', requireAuth, (_req, res) => {
+  const n = db.prepare(`SELECT COUNT(*) AS n FROM records WHERE ${marketPredicate}`).get(...ALLOWED_MARKETS).n;
+  res.json({ count: n, allowed: ALLOWED_MARKETS });
+});
+
+// DELETE all leads whose market isn't in the allowed list.
+app.post('/api/admin/purge-off-market', requireAuth, (_req, res) => {
+  const info = db.prepare(`DELETE FROM records WHERE ${marketPredicate}`).run(...ALLOWED_MARKETS);
+  res.json({ ok: true, deleted: info.changes });
 });
 
 // ----- static dashboard -----

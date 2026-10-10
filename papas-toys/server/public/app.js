@@ -106,6 +106,20 @@ function wireEvents() {
     refresh(false);
   });
 
+  $('[data-action="purge-off-market"]').addEventListener('click', async () => {
+    try {
+      const { count } = await api('/api/admin/off-market-count');
+      if (!count) { setStatusNote('No off-market leads to remove.'); return; }
+      if (!window.confirm(`Delete ${count} lead(s) not in Boise / Twin Falls / Idaho Falls? This cannot be undone.`)) return;
+      const r = await api('/api/admin/purge-off-market', { method: 'POST', body: '{}' });
+      setStatusNote(`Removed ${r.deleted} off-market lead(s).`);
+      await loadFacets();
+      await refresh(true);
+    } catch (err) {
+      setStatusNote('Cleanup failed: ' + err.message);
+    }
+  });
+
   // Top-nav page switching (Records / Calendar / Routes)
   $$('.nav a').forEach((a) => a.addEventListener('click', (e) => {
     e.preventDefault();
@@ -147,10 +161,8 @@ function queryString() {
   p.set('limit', state.limit);
   p.set('offset', state.offset);
   if (f.search) p.set('search', f.search);
-  if (f.market) p.set('market', f.market);
-  if (f.record_source) p.set('record_source', f.record_source);
-  if (f.product) p.set('product', f.product);
-  if (f.sub_source) p.set('sub_source', f.sub_source);
+  const multi = (k) => { if (Array.isArray(f[k]) && f[k].length) p.set(k, f[k].join(',')); };
+  multi('market'); multi('record_source'); multi('product'); multi('sub_source');
   if (f.hitlist) p.set('hitlist', 'true');
   if (f.date_range) {
     p.set('date_field', f.date_field || 'comp_app_date');
@@ -164,20 +176,56 @@ function queryString() {
   return p.toString();
 }
 
+const MS_KEYS = ['market', 'record_source', 'product', 'sub_source'];
+
 async function loadFacets() {
   try {
     const facets = await api('/api/facets');
-    const fill = (key) => {
-      const sel = $(`[data-filter="${key}"]`);
-      if (!sel || !facets[key]) return;
-      const cur = sel.value;
-      sel.innerHTML = '<option value="">Any</option>' +
-        facets[key].map((v) => `<option>${escapeHtml(v)}</option>`).join('');
-      sel.value = cur;
-    };
-    ['market', 'record_source', 'product', 'sub_source'].forEach(fill);
+    MS_KEYS.forEach((key) => buildMultiSelect(key, facets[key] || []));
   } catch (_e) { /* non-fatal */ }
 }
+
+function buildMultiSelect(key, values) {
+  const ms = $(`[data-ms="${key}"]`);
+  if (!ms) return;
+  const selected = new Set(state.filters[key] || []);
+  const menu = $('.ms-menu', ms);
+  menu.innerHTML = values.length
+    ? values.map((v) => `
+        <label class="ms-opt">
+          <input type="checkbox" value="${escapeAttr(v)}" ${selected.has(v) ? 'checked' : ''} />
+          <span>${escapeHtml(v)}</span>
+        </label>`).join('')
+    : '<div class="ms-empty">No options yet</div>';
+
+  updateMsLabel(key);
+
+  const toggle = $('.ms-toggle', ms);
+  toggle.onclick = (e) => {
+    e.stopPropagation();
+    const open = !menu.hidden;
+    $$('.ms-menu').forEach((m) => { m.hidden = true; });
+    menu.hidden = open;
+  };
+  $$('input', menu).forEach((cb) => cb.addEventListener('change', () => {
+    const vals = $$('input:checked', menu).map((c) => c.value);
+    state.filters[key] = vals;
+    updateMsLabel(key);
+    refresh(true);
+  }));
+}
+
+function updateMsLabel(key) {
+  const ms = $(`[data-ms="${key}"]`);
+  if (!ms) return;
+  const vals = state.filters[key] || [];
+  const label = $('.ms-label', ms);
+  label.textContent = vals.length === 0 ? 'Any' : vals.length === 1 ? vals[0] : `${vals.length} selected`;
+  ms.classList.toggle('ms-active', vals.length > 0);
+}
+
+// close any open multiselect menu when clicking elsewhere
+document.addEventListener('click', () => { $$('.ms-menu').forEach((m) => { m.hidden = true; }); });
 
 async function refresh(reset) {
   if (reset) { state.offset = 0; state.rows = []; }
@@ -197,9 +245,11 @@ async function refresh(reset) {
 function renderChips() {
   const f = state.filters;
   const chips = [`<button class="chip chip-clear" data-action="clear">Clear filters</button>`];
-  if (f.market) chips.push(chip('Market: ' + f.market, 'market'));
-  if (f.record_source) chips.push(chip('Record Source: ' + f.record_source, 'record_source'));
-  if (f.product) chips.push(chip('Product: ' + f.product, 'product'));
+  const msChip = (k, lbl) => { if (Array.isArray(f[k]) && f[k].length) chips.push(chip(lbl + ': ' + f[k].join(', '), k)); };
+  msChip('market', 'Market');
+  msChip('record_source', 'Record Source');
+  msChip('product', 'Product');
+  msChip('sub_source', 'Sub Source');
   if (f.date_range) {
     const labels = { yesterday: 'Yesterday', today: 'Today', tomorrow: 'Tomorrow', custom: 'Custom' };
     const fieldLabels = { comp_app_date: 'Comp App Date', uploaded: 'Uploaded', updated: 'Last Updated' };
@@ -217,6 +267,9 @@ function chip(label, key) {
 function clearFilters() {
   state.filters = {};
   $$('[data-filter]').forEach((el) => { if (el.type === 'checkbox') el.checked = false; else el.value = el.querySelector('option') ? el.options[0].value : ''; });
+  $$('.ms-menu input:checked').forEach((cb) => { cb.checked = false; });
+  MS_KEYS.forEach(updateMsLabel);
+  $('[data-role="custom-range"]').hidden = true;
   refresh(true);
 }
 
@@ -446,6 +499,12 @@ document.addEventListener('click', (e) => {
     delete state.filters.date_range; delete state.filters.date_from; delete state.filters.date_to;
     const s = $('[data-filter="date_range"]'); if (s) s.value = '';
     $('[data-role="custom-range"]').hidden = true;
+  }
+  else if (MS_KEYS.includes(key)) {
+    delete state.filters[key];
+    const ms = $(`[data-ms="${key}"]`);
+    if (ms) $$('.ms-menu input:checked', ms).forEach((cb) => { cb.checked = false; });
+    updateMsLabel(key);
   }
   else { delete state.filters[key]; const el = $(`[data-filter="${key}"]`); if (el) el.value = ''; }
   refresh(true);
