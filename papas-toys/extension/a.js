@@ -276,11 +276,15 @@
                             }
                             const _0x43e67c = function () {
                               const _0x3d8c51 = _0x4c050a();
+                              // Only these markets are ever uploaded, no matter what
+                              // else was searched/selected.
+                              const _woAllowedMarkets = ["boise", "twin falls", "idaho falls"];
+                              const _woMarketAllowed = _0xmk => _woAllowedMarkets.includes(String(_0xmk || "").trim().toLowerCase());
                               if (_0x3d8c51.length) {
                                 // Upload both found leads (full data) AND not-found
                                 // leads (name only) so the latter can be completed
                                 // manually on the website's "Needs Entry" tab.
-                                return _0x491fd0.records.filter(_0x37a200 => _0x3d8c51.includes(_0x37a200.market) && (_0x4a7bb5(_0x37a200) || _0x37a200.searchStatus === "not_found"));
+                                return _0x491fd0.records.filter(_0x37a200 => _0x3d8c51.includes(_0x37a200.market) && _woMarketAllowed(_0x37a200.market) && (_0x4a7bb5(_0x37a200) || _0x37a200.searchStatus === "not_found"));
                               } else {
                                 return [];
                               }
