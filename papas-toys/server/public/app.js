@@ -272,9 +272,19 @@ function updateMsLabel(key) {
 // close any open multiselect menu when clicking elsewhere
 document.addEventListener('click', () => { $$('.ms-menu').forEach((m) => { m.hidden = true; }); });
 
+function activeFilterLabel() {
+  const f = state.filters;
+  if (f.date_range) {
+    const labels = { yesterday: 'Yesterday', today: 'Today', tomorrow: 'Tomorrow', custom: 'Custom range' };
+    return labels[f.date_range] || 'Filtered';
+  }
+  if (state.tab === 'needsentry') return 'Needs Entry';
+  return 'All leads';
+}
+
 async function loadStats() {
   try {
-    const s = await api('/api/stats');
+    const s = await api('/api/stats?' + queryString());
     const tiles = [
       ['Found leads', s.found],
       ['Needs entry', s.needsEntry],
@@ -282,10 +292,27 @@ async function loadStats() {
       ['Scheduled this week', s.scheduledWeek],
       ['Hitlist', s.hitlist],
     ];
-    const marketTiles = (s.byMarket || []).slice(0, 4)
+    const p = s.products || {};
+    const prodDefs = [
+      ['Roofing', p.roofing, 'prod-roof'],
+      ['Windows', p.windows, 'prod-win'],
+      ['Siding', p.siding, 'prod-side'],
+      ['Bath', p.bath, 'prod-bath'],
+      ['Other', p.other, 'prod-other'],
+    ];
+    const prodHtml = `
+      <div class="prodbreak">
+        <div class="prodbreak-head">Products — <strong>${escapeHtml(activeFilterLabel())}</strong> <span class="muted">(${p.total || 0} leads)</span></div>
+        <div class="prodbreak-tiles">
+          ${prodDefs.map(([l, n, cls]) => `<div class="ptile ${cls}"><div class="ptile-n">${n ?? 0}</div><div class="ptile-l">${l}</div></div>`).join('')}
+        </div>
+      </div>`;
+    const marketTiles = (s.byMarket || []).slice(0, 3)
       .map((m) => `<div class="stat stat-sm"><div class="stat-n">${m.n}</div><div class="stat-l">${escapeHtml(m.market)}</div></div>`).join('');
     $('[data-role="stats"]').innerHTML =
-      tiles.map(([l, n]) => `<div class="stat"><div class="stat-n">${n ?? 0}</div><div class="stat-l">${l}</div></div>`).join('') + marketTiles;
+      '<div class="stat-row">' +
+      tiles.map(([l, n]) => `<div class="stat"><div class="stat-n">${n ?? 0}</div><div class="stat-l">${l}</div></div>`).join('') +
+      marketTiles + '</div>' + prodHtml;
   } catch (_e) { /* non-fatal */ }
 }
 

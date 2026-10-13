@@ -255,20 +255,50 @@ app.get('/api/facets', requireAuth, (_req, res) => {
   });
 });
 
-// Summary stats for the dashboard header.
-app.get('/api/stats', requireAuth, (_req, res) => {
+// Product categories, matched against the free-text product/work type.
+const PRODUCT_CATEGORIES = {
+  roofing: ["LOWER(product) LIKE '%roof%'"],
+  windows: ["LOWER(product) LIKE '%window%'"],
+  siding: ["LOWER(product) LIKE '%siding%'"],
+  bath: ["LOWER(product) LIKE '%bath%'", "LOWER(product) LIKE '%shower%'"],
+};
+
+// Summary stats. Respects the same filters as /api/records so the product
+// breakdown reflects the current view (e.g. Today / Tomorrow leads).
+app.get('/api/stats', requireAuth, (req, res) => {
   const one = (sql, ...p) => db.prepare(sql).get(...p).n;
   const today = dateBounds('today');
-  const weekStart = today.start;
   const weekEnd = zonedMidnightUtc(addDays(todayYmd(), 7));
+
+  // Product breakdown over the current filter.
+  const { clause, params } = buildWhere(req.query || {});
+  const catExpr = (conds) => `SUM(CASE WHEN ${conds.join(' OR ')} THEN 1 ELSE 0 END)`;
+  const anyCond = Object.values(PRODUCT_CATEGORIES).flat().join(' OR ');
+  const row = db.prepare(`
+    SELECT COUNT(*) AS total,
+      ${catExpr(PRODUCT_CATEGORIES.roofing)} AS roofing,
+      ${catExpr(PRODUCT_CATEGORIES.windows)} AS windows,
+      ${catExpr(PRODUCT_CATEGORIES.siding)} AS siding,
+      ${catExpr(PRODUCT_CATEGORIES.bath)} AS bath,
+      SUM(CASE WHEN ${anyCond} THEN 0 ELSE 1 END) AS other
+    FROM records ${clause}`).get(params);
+
   res.json({
     found: one(`SELECT COUNT(*) n FROM records WHERE archived=0 AND lead_status='found'`),
     needsEntry: one(`SELECT COUNT(*) n FROM records WHERE archived=0 AND lead_status='not_found'`),
     hitlist: one(`SELECT COUNT(*) n FROM records WHERE archived=0 AND hitlist=1`),
     scheduledToday: one(`SELECT COUNT(*) n FROM records WHERE scheduled_at >= ? AND scheduled_at < ?`, today.start, today.end),
-    scheduledWeek: one(`SELECT COUNT(*) n FROM records WHERE scheduled_at >= ? AND scheduled_at < ?`, weekStart, weekEnd),
+    scheduledWeek: one(`SELECT COUNT(*) n FROM records WHERE scheduled_at >= ? AND scheduled_at < ?`, today.start, weekEnd),
     byMarket: db.prepare(`SELECT COALESCE(NULLIF(TRIM(market),''),'(none)') AS market, COUNT(*) AS n
       FROM records WHERE archived=0 AND lead_status='found' GROUP BY market ORDER BY n DESC`).all(),
+    products: {
+      total: row.total || 0,
+      roofing: row.roofing || 0,
+      windows: row.windows || 0,
+      siding: row.siding || 0,
+      bath: row.bath || 0,
+      other: row.other || 0,
+    },
   });
 });
 
