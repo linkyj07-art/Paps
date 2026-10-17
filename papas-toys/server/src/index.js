@@ -379,18 +379,25 @@ app.patch('/api/records/:id', requireAuth, (req, res) => {
 });
 
 // Markets we keep. Everything else can be purged.
-const ALLOWED_MARKETS = ['boise', 'twin falls', 'idaho falls'];
-const marketPredicate = `LOWER(TRIM(COALESCE(market,''))) NOT IN (${ALLOWED_MARKETS.map(() => '?').join(',')})`;
+// Keep Boise / Twin Falls / Idaho Falls, matched generously (full name, the
+// IDF/TWF/BOI abbreviations, or any value containing the city name).
+const MARKET_KEEP = `(
+  LOWER(TRIM(COALESCE(market,''))) IN ('boi','twf','idf')
+  OR LOWER(COALESCE(market,'')) LIKE '%boise%'
+  OR LOWER(COALESCE(market,'')) LIKE '%twin falls%'
+  OR LOWER(COALESCE(market,'')) LIKE '%idaho falls%'
+)`;
+const marketPredicate = `NOT ${MARKET_KEEP}`;
 
 // GET how many off-market leads exist (for a confirm prompt).
 app.get('/api/admin/off-market-count', requireAuth, (_req, res) => {
-  const n = db.prepare(`SELECT COUNT(*) AS n FROM records WHERE ${marketPredicate}`).get(...ALLOWED_MARKETS).n;
-  res.json({ count: n, allowed: ALLOWED_MARKETS });
+  const n = db.prepare(`SELECT COUNT(*) AS n FROM records WHERE ${marketPredicate}`).get().n;
+  res.json({ count: n, allowed: ['Boise', 'Twin Falls', 'Idaho Falls'] });
 });
 
 // DELETE all leads whose market isn't in the allowed list.
 app.post('/api/admin/purge-off-market', requireAuth, (_req, res) => {
-  const info = db.prepare(`DELETE FROM records WHERE ${marketPredicate}`).run(...ALLOWED_MARKETS);
+  const info = db.prepare(`DELETE FROM records WHERE ${marketPredicate}`).run();
   res.json({ ok: true, deleted: info.changes });
 });
 

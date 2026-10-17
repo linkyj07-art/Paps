@@ -278,8 +278,15 @@
                               const _0x3d8c51 = _0x4c050a();
                               // Only these markets are ever uploaded, no matter what
                               // else was searched/selected.
-                              const _woAllowedMarkets = ["boise", "twin falls", "idaho falls"];
-                              const _woMarketAllowed = _0xmk => _woAllowedMarkets.includes(String(_0xmk || "").trim().toLowerCase());
+                              // Match Boise / Twin Falls / Idaho Falls generously:
+                              // exact names, the IDF/TWF/BOI abbreviations, or any
+                              // value that contains the city name ("Boise, ID", etc).
+                              const _woMarketAllowed = _0xmk => {
+                                const _v = String(_0xmk || "").trim().toLowerCase();
+                                if (!_v) return false;
+                                if (["boi", "twf", "idf"].includes(_v)) return true;
+                                return _v.includes("boise") || _v.includes("twin falls") || _v.includes("idaho falls");
+                              };
                               if (_0x3d8c51.length) {
                                 // Upload both found leads (full data) AND not-found
                                 // leads (name only) so the latter can be completed
