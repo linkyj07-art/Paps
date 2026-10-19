@@ -3,3 +3,4 @@ data/*.xlsx
 !data/.gitkeep
 __pycache__/
 *.pyc
+book-of-business/data/

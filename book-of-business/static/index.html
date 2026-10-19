@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Book of Business</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">Book of Business</div>
+    <nav class="tabs" role="tablist">
+      <button class="tab active" data-view="dashboard">Dashboard</button>
+      <button class="tab" data-view="policies">Policies</button>
+      <button class="tab" data-view="clients">Clients</button>
+    </nav>
+    <div class="top-actions">
+      <button class="btn" id="btn-import">Import CSV</button>
+      <a class="btn" href="/api/export">Export CSV</a>
+      <input type="file" id="import-file" accept=".csv,text/csv" hidden>
+    </div>
+  </header>
+
+  <main>
+    <!-- Dashboard -->
+    <section id="view-dashboard" class="view">
+      <div class="hero">
+        <div>
+          <div class="label">Annual premium in force</div>
+          <div class="hero-value" id="hero-ap">$0</div>
+        </div>
+        <div class="hero-actions">
+          <button class="btn primary" data-action="new-policy">+ New policy</button>
+          <button class="btn" data-action="new-client">+ New client</button>
+        </div>
+      </div>
+      <div class="tiles" id="tiles"></div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h2>Premium written by month</h2>
+          <p class="sub">Annual premium on applications, last 12 months</p>
+          <div id="chart-monthly" class="chart"></div>
+        </div>
+        <div class="card">
+          <h2>In-force premium by carrier</h2>
+          <p class="sub">Annual premium on issued and in-force policies</p>
+          <div id="chart-carrier" class="chart"></div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h2>Needs attention</h2>
+          <p class="sub">Follow-ups due within 14 days and pending business older than 30 days</p>
+          <ul class="list" id="list-attention"></ul>
+        </div>
+        <div class="card">
+          <h2>Coming up</h2>
+          <p class="sub">Client birthdays and policy anniversaries in the next 30 days</p>
+          <ul class="list" id="list-upcoming"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Policies -->
+    <section id="view-policies" class="view" hidden>
+      <div class="toolbar">
+        <input type="search" id="policy-search" placeholder="Search client, carrier, policy #…">
+        <select id="policy-status-filter"><option value="">All statuses</option></select>
+        <select id="policy-carrier-filter"><option value="">All carriers</option></select>
+        <span class="spacer"></span>
+        <button class="btn primary" data-action="new-policy">+ New policy</button>
+      </div>
+      <div class="summary" id="policy-summary"></div>
+      <div class="table-wrap">
+        <table class="table" id="policy-table">
+          <thead>
+            <tr>
+              <th data-sort="client">Client</th>
+              <th data-sort="carrier">Carrier</th>
+              <th data-sort="product_type">Product</th>
+              <th data-sort="policy_number">Policy #</th>
+              <th data-sort="status">Status</th>
+              <th data-sort="face_amount" class="num">Face</th>
+              <th data-sort="annual_premium" class="num">Annual prem.</th>
+              <th data-sort="commission" class="num">Est. comm.</th>
+              <th data-sort="app_date">App date</th>
+              <th data-sort="follow_up_date">Follow-up</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <div class="empty" id="policy-empty" hidden>No policies yet. Add your first one with <b>+ New policy</b>.</div>
+      </div>
+    </section>
+
+    <!-- Clients -->
+    <section id="view-clients" class="view" hidden>
+      <div class="toolbar">
+        <input type="search" id="client-search" placeholder="Search name, phone, email, city…">
+        <span class="spacer"></span>
+        <button class="btn primary" data-action="new-client">+ New client</button>
+      </div>
+      <div class="table-wrap">
+        <table class="table" id="client-table">
+          <thead>
+            <tr>
+              <th data-sort="name">Name</th>
+              <th data-sort="dob">DOB / Age</th>
+              <th data-sort="phone">Phone</th>
+              <th data-sort="email">Email</th>
+              <th data-sort="state">State</th>
+              <th data-sort="policy_count" class="num">Policies</th>
+              <th data-sort="inforce_premium" class="num">In-force prem.</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <div class="empty" id="client-empty" hidden>No clients yet. Add one with <b>+ New client</b>.</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Client dialog -->
+  <dialog id="client-dialog">
+    <form method="dialog" id="client-form">
+      <h2 id="client-dialog-title">New client</h2>
+      <div class="form-grid">
+        <label>First name<input name="first_name" required></label>
+        <label>Last name<input name="last_name"></label>
+        <label>Date of birth<input name="dob" type="date"></label>
+        <label>Phone<input name="phone" type="tel"></label>
+        <label class="span-2">Email<input name="email" type="email"></label>
+        <label class="span-2">Address<input name="address"></label>
+        <label>City<input name="city"></label>
+        <label>State<input name="state" maxlength="2" placeholder="TX"></label>
+        <label>ZIP<input name="zip"></label>
+        <label>Lead source<input name="source" list="source-options" placeholder="Referral, Facebook, …"></label>
+        <label class="span-2">Notes<textarea name="notes" rows="3"></textarea></label>
+      </div>
+      <div class="client-policies" id="client-policies"></div>
+      <div class="dialog-actions">
+        <button type="button" class="btn danger" id="client-delete" hidden>Delete client</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn" data-close>Cancel</button>
+        <button type="submit" class="btn primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Policy dialog -->
+  <dialog id="policy-dialog">
+    <form method="dialog" id="policy-form">
+      <h2 id="policy-dialog-title">New policy</h2>
+      <div class="form-grid">
+        <label class="span-2">Client
+          <div class="inline">
+            <select name="client_id" required></select>
+            <button type="button" class="btn small" id="policy-new-client">+ New</button>
+          </div>
+        </label>
+        <label>Carrier<input name="carrier" list="carrier-options" required></label>
+        <label>Product type<select name="product_type"></select></label>
+        <label>Product name<input name="product_name" placeholder="e.g. Term 20"></label>
+        <label>Policy #<input name="policy_number"></label>
+        <label>Status<select name="status"></select></label>
+        <label>Face amount<input name="face_amount" inputmode="decimal" placeholder="250,000"></label>
+        <label>Payment mode<select name="payment_mode"></select></label>
+        <label>Modal premium<input name="modal_premium" inputmode="decimal" placeholder="85.00"></label>
+        <label>Annual premium<input name="annual_premium" inputmode="decimal"></label>
+        <label>Application date<input name="app_date" type="date"></label>
+        <label>Effective / issue date<input name="effective_date" type="date"></label>
+        <label>Commission rate %<input name="commission_rate" inputmode="decimal" placeholder="100"></label>
+        <label>Est. commission<input name="est_commission" readonly tabindex="-1"></label>
+        <label>Commission paid<input name="commission_paid" inputmode="decimal"></label>
+        <label>Chargebacks<input name="chargeback" inputmode="decimal"></label>
+        <label>Beneficiary<input name="beneficiary"></label>
+        <label>Follow-up date<input name="follow_up_date" type="date"></label>
+        <label class="span-2">Notes<textarea name="notes" rows="3"></textarea></label>
+      </div>
+      <div class="dialog-actions">
+        <button type="button" class="btn danger" id="policy-delete" hidden>Delete policy</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn" data-close>Cancel</button>
+        <button type="submit" class="btn primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <datalist id="carrier-options"></datalist>
+  <datalist id="source-options"></datalist>
+  <div class="tooltip" id="tooltip" hidden></div>
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

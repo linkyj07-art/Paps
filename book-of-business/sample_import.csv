@@ -1,0 +1,7 @@
+first_name,last_name,dob,phone,email,city,state,source,carrier,product_type,product_name,policy_number,status,face_amount,annual_premium,payment_mode,app_date,effective_date,commission_rate,commission_paid,chargeback,beneficiary,follow_up_date,notes
+Maria,Lopez,1984-10-30,555-201-3344,maria@example.com,Austin,TX,Referral,Mutual of Omaha,Term,Term Life Answers 20,ML1002,In Force,500000,684,Monthly,2025-10-02,2025-11-01,90,615.60,0,Carlos Lopez (spouse),,Wants to add kids rider later
+Maria,Lopez,1984-10-30,555-201-3344,maria@example.com,Austin,TX,Referral,Americo,Final Expense,,AM3381,Submitted,15000,540,Monthly,2026-08-20,,100,0,0,,2026-10-22,Waiting on APS
+James,Carter,1958-11-05,555-874-1200,,Dallas,TX,Facebook,Americo,Final Expense,Eagle Select,AM2210,In Force,20000,1020,Monthly,2026-03-11,2026-04-01,110,1122,0,Linda Carter,,
+Priya,Shah,1990-02-14,555-339-9087,priya@example.com,Plano,TX,Referral,North American,IUL,Builder IUL,NA77821,Underwriting,750000,4800,Monthly,2026-09-05,,95,0,0,,2026-10-15,Exam done 9/18
+Devon,Brooks,1976-06-21,555-660-4411,,Houston,TX,Mortgage lead,Foresters,Mortgage Protection,Strong Foundation,FR5521,Lapsed,300000,1260,Monthly,2025-05-14,2025-06-01,80,1008,504,,,Missed 3 drafts
+Ana,Nguyen,1969-01-08,555-112-0099,ana@example.com,Round Rock,TX,Referral,Transamerica,Whole Life,,TA11209,Issued,100000,2950,Annual,2026-07-02,2026-08-01,85,0,0,Kim Nguyen,2026-10-25,Deliver policy
