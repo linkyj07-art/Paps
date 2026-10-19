@@ -88,6 +88,8 @@ function toast(msg) {
 
 // ---------- API ----------
 async function api(method, path, body) {
+  // Standalone single-file build: no server, data lives in this browser.
+  if (window.LocalStore) return window.LocalStore.request(method, path, body);
   const opts = { method, headers: {} };
   if (body !== undefined) {
     opts.headers["Content-Type"] = typeof body === "string" ? "text/csv" : "application/json";
@@ -564,6 +566,28 @@ $("#import-file").addEventListener("change", async (e) => {
     toast(`Imported ${res.clients_added} new clients and ${res.policies_added} policies` +
       (res.policies_skipped ? ` (${res.policies_skipped} duplicates skipped)` : ""));
   } catch (err) { toast("Import failed: " + err.message); }
+});
+
+// ---------- export ----------
+$("#btn-export").addEventListener("click", async () => {
+  try {
+    let csv;
+    if (window.LocalStore) csv = await window.LocalStore.request("GET", "/api/export");
+    else {
+      const res = await fetch("/api/export");
+      if (!res.ok) throw new Error(`Request failed (${res.status})`);
+      csv = await res.text();
+    }
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    const a = Object.assign(document.createElement("a"), {
+      href: url,
+      download: `book-of-business-${new Date().toLocaleDateString("en-CA")}.csv`,
+    });
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (err) { toast("Export failed: " + err.message); }
 });
 
 // ---------- global wiring ----------

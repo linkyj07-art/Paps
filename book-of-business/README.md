@@ -4,27 +4,35 @@ A private, local website for tracking a life insurance book of business:
 clients, policies, pending business, premium, commissions, follow-ups,
 birthdays and policy anniversaries.
 
-It runs on your own computer. There's nothing to install beyond Python 3,
-and your data never leaves your machine.
+## Open it (easiest)
 
-## Start it
+Download **`book-of-business.html`** and double-click it. It opens in your
+browser. No internet, install, or Terminal needed.
+
+- Your data is saved **inside that browser** on that computer. Always open
+  the file in the same browser (e.g. always Chrome), and you can move the
+  file anywhere you like.
+- Clearing your browser's history/site data, or using a private/incognito
+  window, can erase it. **Click Export CSV regularly** and keep the file
+  somewhere safe. Import CSV restores it, and is also how you move your book
+  to another computer or browser.
+
+## Or run it as a local server (optional)
+
+This version keeps your data in a file (`book-of-business/data/book.db`)
+instead of the browser. It needs Python 3:
 
 ```bash
 python3 book-of-business/server.py
 ```
 
-Then open **http://127.0.0.1:8000** in your browser. Press `Ctrl+C` in the
-terminal to stop it.
+Then open **http://127.0.0.1:8000**. Press `Ctrl+C` in the terminal to stop
+it. Options: `--port 8080` for a different port, `--db /path/to/book.db` to
+keep the data file somewhere else (e.g. a backed-up folder). The data file
+is git-ignored so client information is never committed.
 
-Options:
-
-- `--port 8080` to use a different port
-- `--db /path/to/book.db` to keep the data file somewhere else (e.g. a
-  synced/backed-up folder)
-
-By default your data lives in `book-of-business/data/book.db`, which is
-git-ignored so client information is never committed. **Back up that file**
-(or use **Export CSV**) regularly.
+The two versions keep separate data. Use Export CSV / Import CSV to move
+between them.
 
 ## What's in it
 
@@ -58,3 +66,11 @@ matched on first name + last name + DOB, and policies already on file (same
 policy number) are skipped, so re-importing the same file won't create
 duplicates. **Export CSV** writes the same format, so an export can be
 re-imported elsewhere.
+
+## Editing the app
+
+The app lives in `static/`. After changing it, rebuild the single file:
+
+```bash
+python3 book-of-business/build_standalone.py
+```

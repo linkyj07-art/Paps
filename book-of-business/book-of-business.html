@@ -1,0 +1,1305 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Book of Business</title>
+  <style>
+:root {
+  color-scheme: light;
+  --bg: #f6f6f4;
+  --surface: #fcfcfb;
+  --surface-2: #f0efec;
+  --border: #e2e1dc;
+  --text: #0b0b0b;
+  --text-2: #52514e;
+  --text-3: #7a7974;
+  --accent: #2a78d6;
+  --accent-ink: #ffffff;
+  --bar: #2a78d6;
+  --grid: #ecebe7;
+  --danger: #c62f2f;
+  --good: #1d7a3a;   --good-bg: #e3f3e7;
+  --warn: #8a5a00;   --warn-bg: #fdf1d6;
+  --bad: #b42323;    --bad-bg: #fbe4e4;
+  --info: #1d5fae;   --info-bg: #e2edfa;
+  --muted-bg: #ecebe7;
+  --shadow: 0 1px 2px rgba(0,0,0,.05), 0 4px 16px rgba(0,0,0,.04);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #121211;
+    --surface: #1a1a19;
+    --surface-2: #232321;
+    --border: #2f2f2c;
+    --text: #f0efec;
+    --text-2: #c3c2b7;
+    --text-3: #8f8e86;
+    --accent: #3987e5;
+    --bar: #3987e5;
+    --grid: #262624;
+    --danger: #ef6b6b;
+    --good: #7dd492;   --good-bg: #173322;
+    --warn: #f0c060;   --warn-bg: #3a2c0c;
+    --bad: #f28b8b;    --bad-bg: #3d1818;
+    --info: #8cb8f0;   --info-bg: #16283f;
+    --muted-bg: #2a2a27;
+    --shadow: none;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121211; --surface: #1a1a19; --surface-2: #232321; --border: #2f2f2c;
+  --text: #f0efec; --text-2: #c3c2b7; --text-3: #8f8e86;
+  --accent: #3987e5; --bar: #3987e5; --grid: #262624; --danger: #ef6b6b;
+  --good: #7dd492; --good-bg: #173322; --warn: #f0c060; --warn-bg: #3a2c0c;
+  --bad: #f28b8b; --bad-bg: #3d1818; --info: #8cb8f0; --info-bg: #16283f;
+  --muted-bg: #2a2a27; --shadow: none;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+h2 { font-size: 15px; margin: 0; font-weight: 600; }
+.sub { margin: 2px 0 12px; color: var(--text-3); font-size: 12.5px; }
+.label { color: var(--text-2); font-size: 13px; }
+
+/* Top bar */
+.topbar {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  padding: 10px 24px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.brand { font-weight: 700; font-size: 16px; }
+.tabs { display: flex; gap: 4px; }
+.tab {
+  border: 0; background: none; color: var(--text-2);
+  padding: 7px 12px; border-radius: 8px; font: inherit; cursor: pointer;
+}
+.tab:hover { background: var(--surface-2); }
+.tab.active { background: var(--surface-2); color: var(--text); font-weight: 600; }
+.top-actions { margin-left: auto; display: flex; gap: 8px; }
+
+main { max-width: 1280px; margin: 0 auto; padding: 24px; }
+
+/* Buttons & inputs */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text);
+  padding: 7px 12px; border-radius: 8px; font: inherit; cursor: pointer;
+  text-decoration: none; white-space: nowrap;
+}
+.btn:hover { background: var(--surface-2); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.danger { color: var(--danger); }
+.btn.small { padding: 5px 9px; font-size: 13px; }
+input, select, textarea {
+  width: 100%;
+  font: inherit; color: var(--text);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 7px 9px;
+}
+input[readonly] { background: var(--surface-2); color: var(--text-2); }
+input:focus, select:focus, textarea:focus, .btn:focus-visible, .tab:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 1px;
+}
+
+/* Dashboard */
+.hero {
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.hero-value { font-size: 48px; font-weight: 650; line-height: 1.1; letter-spacing: -0.02em; }
+.hero-actions { display: flex; gap: 8px; }
+.tiles {
+  display: grid; gap: 12px; margin-bottom: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+.tile, .card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; box-shadow: var(--shadow);
+}
+.tile { padding: 14px 16px; }
+.tile .value { font-size: 22px; font-weight: 600; margin-top: 2px; }
+.tile .note { color: var(--text-3); font-size: 12px; margin-top: 2px; }
+.card { padding: 16px 18px; min-width: 0; }
+.grid-2 { display: grid; gap: 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 16px; }
+
+.chart { width: 100%; }
+.chart svg { display: block; overflow: visible; }
+.chart .axis-label { fill: var(--text-3); font-size: 11px; }
+.chart .value-label { fill: var(--text-2); font-size: 11px; }
+.chart .gridline { stroke: var(--grid); stroke-width: 1; }
+.chart .bar { fill: var(--bar); }
+.chart .hit { fill: transparent; cursor: default; }
+.chart .hit:hover + .bar, .chart g:hover .bar { filter: brightness(1.15); }
+.chart-empty { color: var(--text-3); padding: 60px 0; text-align: center; }
+
+.list { list-style: none; margin: 0; padding: 0; }
+.list li {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 0; border-top: 1px solid var(--border);
+}
+.list li:first-child { border-top: 0; }
+.list .what { flex: 1; min-width: 0; }
+.list .what b { font-weight: 600; }
+.list .meta { color: var(--text-3); font-size: 12.5px; }
+.list li.clickable { cursor: pointer; }
+.list li.clickable:hover .what b { text-decoration: underline; }
+.list .none { color: var(--text-3); }
+
+/* Pills (status always shown as text, color is secondary) */
+.pill {
+  display: inline-block; padding: 2px 8px; border-radius: 999px;
+  font-size: 12px; font-weight: 600; white-space: nowrap;
+  background: var(--muted-bg); color: var(--text-2);
+}
+.pill.good { background: var(--good-bg); color: var(--good); }
+.pill.warn { background: var(--warn-bg); color: var(--warn); }
+.pill.bad  { background: var(--bad-bg);  color: var(--bad); }
+.pill.info { background: var(--info-bg); color: var(--info); }
+
+/* Tables */
+.toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+.toolbar input[type="search"] { max-width: 320px; }
+.toolbar select { width: auto; }
+.spacer { flex: 1; }
+.summary { color: var(--text-2); font-size: 13px; margin-bottom: 10px; }
+.table-wrap {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  overflow-x: auto; box-shadow: var(--shadow);
+}
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td { padding: 9px 12px; text-align: left; white-space: nowrap; }
+.table th {
+  font-size: 12px; font-weight: 600; color: var(--text-2);
+  border-bottom: 1px solid var(--border); cursor: pointer; user-select: none;
+  position: sticky; top: 0; background: var(--surface);
+}
+.table th.sorted::after { content: " ↓"; }
+.table th.sorted.asc::after { content: " ↑"; }
+.table td { border-top: 1px solid var(--border); }
+.table tbody tr:first-child td { border-top: 0; }
+.table tbody tr { cursor: pointer; }
+.table tbody tr:hover { background: var(--surface-2); }
+.num { text-align: right !important; font-variant-numeric: tabular-nums; }
+.overdue { color: var(--bad); font-weight: 600; }
+.empty { padding: 40px; text-align: center; color: var(--text-3); }
+
+/* Dialogs */
+dialog {
+  border: 1px solid var(--border); border-radius: 14px; padding: 0;
+  background: var(--surface); color: var(--text);
+  width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 48px);
+}
+dialog::backdrop { background: rgba(0,0,0,.4); }
+dialog form { padding: 20px 22px; }
+dialog h2 { font-size: 18px; margin-bottom: 14px; }
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 14px; }
+.form-grid label { display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; color: var(--text-2); }
+.form-grid .span-2 { grid-column: span 2; }
+.inline { display: flex; gap: 8px; }
+.dialog-actions { display: flex; gap: 8px; margin-top: 18px; align-items: center; }
+.client-policies { margin-top: 16px; }
+.client-policies h3 { font-size: 13px; margin: 0 0 6px; color: var(--text-2); font-weight: 600; }
+
+.tooltip {
+  position: fixed; z-index: 20; pointer-events: none;
+  background: var(--text); color: var(--surface);
+  padding: 6px 9px; border-radius: 6px; font-size: 12px; line-height: 1.35;
+  white-space: nowrap;
+}
+.toast {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 30;
+  background: var(--text); color: var(--surface); padding: 9px 14px; border-radius: 8px;
+}
+
+@media (max-width: 860px) {
+  .grid-2 { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .topbar { padding: 10px 16px; }
+  main { padding: 16px; }
+  .top-actions { margin-left: 0; }
+  .form-grid { grid-template-columns: 1fr; }
+  .form-grid .span-2 { grid-column: span 1; }
+  .hero-value { font-size: 38px; }
+  .toolbar input[type="search"] { max-width: none; }
+}
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">Book of Business</div>
+    <nav class="tabs" role="tablist">
+      <button class="tab active" data-view="dashboard">Dashboard</button>
+      <button class="tab" data-view="policies">Policies</button>
+      <button class="tab" data-view="clients">Clients</button>
+    </nav>
+    <div class="top-actions">
+      <button class="btn" id="btn-import">Import CSV</button>
+      <button class="btn" id="btn-export">Export CSV</button>
+      <input type="file" id="import-file" accept=".csv,text/csv" hidden>
+    </div>
+  </header>
+
+  <main>
+    <!-- Dashboard -->
+    <section id="view-dashboard" class="view">
+      <div class="hero">
+        <div>
+          <div class="label">Annual premium in force</div>
+          <div class="hero-value" id="hero-ap">$0</div>
+        </div>
+        <div class="hero-actions">
+          <button class="btn primary" data-action="new-policy">+ New policy</button>
+          <button class="btn" data-action="new-client">+ New client</button>
+        </div>
+      </div>
+      <div class="tiles" id="tiles"></div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h2>Premium written by month</h2>
+          <p class="sub">Annual premium on applications, last 12 months</p>
+          <div id="chart-monthly" class="chart"></div>
+        </div>
+        <div class="card">
+          <h2>In-force premium by carrier</h2>
+          <p class="sub">Annual premium on issued and in-force policies</p>
+          <div id="chart-carrier" class="chart"></div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h2>Needs attention</h2>
+          <p class="sub">Follow-ups due within 14 days and pending business older than 30 days</p>
+          <ul class="list" id="list-attention"></ul>
+        </div>
+        <div class="card">
+          <h2>Coming up</h2>
+          <p class="sub">Client birthdays and policy anniversaries in the next 30 days</p>
+          <ul class="list" id="list-upcoming"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Policies -->
+    <section id="view-policies" class="view" hidden>
+      <div class="toolbar">
+        <input type="search" id="policy-search" placeholder="Search client, carrier, policy #…">
+        <select id="policy-status-filter"><option value="">All statuses</option></select>
+        <select id="policy-carrier-filter"><option value="">All carriers</option></select>
+        <span class="spacer"></span>
+        <button class="btn primary" data-action="new-policy">+ New policy</button>
+      </div>
+      <div class="summary" id="policy-summary"></div>
+      <div class="table-wrap">
+        <table class="table" id="policy-table">
+          <thead>
+            <tr>
+              <th data-sort="client">Client</th>
+              <th data-sort="carrier">Carrier</th>
+              <th data-sort="product_type">Product</th>
+              <th data-sort="policy_number">Policy #</th>
+              <th data-sort="status">Status</th>
+              <th data-sort="face_amount" class="num">Face</th>
+              <th data-sort="annual_premium" class="num">Annual prem.</th>
+              <th data-sort="commission" class="num">Est. comm.</th>
+              <th data-sort="app_date">App date</th>
+              <th data-sort="follow_up_date">Follow-up</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <div class="empty" id="policy-empty" hidden>No policies yet. Add your first one with <b>+ New policy</b>.</div>
+      </div>
+    </section>
+
+    <!-- Clients -->
+    <section id="view-clients" class="view" hidden>
+      <div class="toolbar">
+        <input type="search" id="client-search" placeholder="Search name, phone, email, city…">
+        <span class="spacer"></span>
+        <button class="btn primary" data-action="new-client">+ New client</button>
+      </div>
+      <div class="table-wrap">
+        <table class="table" id="client-table">
+          <thead>
+            <tr>
+              <th data-sort="name">Name</th>
+              <th data-sort="dob">DOB / Age</th>
+              <th data-sort="phone">Phone</th>
+              <th data-sort="email">Email</th>
+              <th data-sort="state">State</th>
+              <th data-sort="policy_count" class="num">Policies</th>
+              <th data-sort="inforce_premium" class="num">In-force prem.</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <div class="empty" id="client-empty" hidden>No clients yet. Add one with <b>+ New client</b>.</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Client dialog -->
+  <dialog id="client-dialog">
+    <form method="dialog" id="client-form">
+      <h2 id="client-dialog-title">New client</h2>
+      <div class="form-grid">
+        <label>First name<input name="first_name" required></label>
+        <label>Last name<input name="last_name"></label>
+        <label>Date of birth<input name="dob" type="date"></label>
+        <label>Phone<input name="phone" type="tel"></label>
+        <label class="span-2">Email<input name="email" type="email"></label>
+        <label class="span-2">Address<input name="address"></label>
+        <label>City<input name="city"></label>
+        <label>State<input name="state" maxlength="2" placeholder="TX"></label>
+        <label>ZIP<input name="zip"></label>
+        <label>Lead source<input name="source" list="source-options" placeholder="Referral, Facebook, …"></label>
+        <label class="span-2">Notes<textarea name="notes" rows="3"></textarea></label>
+      </div>
+      <div class="client-policies" id="client-policies"></div>
+      <div class="dialog-actions">
+        <button type="button" class="btn danger" id="client-delete" hidden>Delete client</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn" data-close>Cancel</button>
+        <button type="submit" class="btn primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Policy dialog -->
+  <dialog id="policy-dialog">
+    <form method="dialog" id="policy-form">
+      <h2 id="policy-dialog-title">New policy</h2>
+      <div class="form-grid">
+        <label class="span-2">Client
+          <div class="inline">
+            <select name="client_id" required></select>
+            <button type="button" class="btn small" id="policy-new-client">+ New</button>
+          </div>
+        </label>
+        <label>Carrier<input name="carrier" list="carrier-options" required></label>
+        <label>Product type<select name="product_type"></select></label>
+        <label>Product name<input name="product_name" placeholder="e.g. Term 20"></label>
+        <label>Policy #<input name="policy_number"></label>
+        <label>Status<select name="status"></select></label>
+        <label>Face amount<input name="face_amount" inputmode="decimal" placeholder="250,000"></label>
+        <label>Payment mode<select name="payment_mode"></select></label>
+        <label>Modal premium<input name="modal_premium" inputmode="decimal" placeholder="85.00"></label>
+        <label>Annual premium<input name="annual_premium" inputmode="decimal"></label>
+        <label>Application date<input name="app_date" type="date"></label>
+        <label>Effective / issue date<input name="effective_date" type="date"></label>
+        <label>Commission rate %<input name="commission_rate" inputmode="decimal" placeholder="100"></label>
+        <label>Est. commission<input name="est_commission" readonly tabindex="-1"></label>
+        <label>Commission paid<input name="commission_paid" inputmode="decimal"></label>
+        <label>Chargebacks<input name="chargeback" inputmode="decimal"></label>
+        <label>Beneficiary<input name="beneficiary"></label>
+        <label>Follow-up date<input name="follow_up_date" type="date"></label>
+        <label class="span-2">Notes<textarea name="notes" rows="3"></textarea></label>
+      </div>
+      <div class="dialog-actions">
+        <button type="button" class="btn danger" id="policy-delete" hidden>Delete policy</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn" data-close>Cancel</button>
+        <button type="submit" class="btn primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <datalist id="carrier-options"></datalist>
+  <datalist id="source-options"></datalist>
+  <div class="tooltip" id="tooltip" hidden></div>
+  <div class="toast" id="toast" hidden></div>
+
+  <script>
+"use strict";
+// In-browser replacement for server.py, used by the standalone
+// book-of-business.html. Mirrors the server's API so app.js works unchanged.
+// Data lives in this browser's localStorage under STORAGE_KEY.
+
+(function () {
+  const STORAGE_KEY = "book-of-business.v1";
+  const CLIENT_FIELDS = ["first_name", "last_name", "dob", "phone", "email",
+    "address", "city", "state", "zip", "source", "notes"];
+  const POLICY_FIELDS = ["client_id", "carrier", "product_type", "product_name", "policy_number",
+    "status", "face_amount", "annual_premium", "payment_mode", "app_date",
+    "effective_date", "commission_rate", "commission_paid", "chargeback",
+    "beneficiary", "follow_up_date", "notes"];
+  const NUMERIC = new Set(["face_amount", "annual_premium", "commission_rate", "commission_paid", "chargeback"]);
+  const CLIENT_CSV_PREFIXED = { notes: "client_notes" };
+  const CSV_COLUMNS = CLIENT_FIELDS.map((f) => CLIENT_CSV_PREFIXED[f] || f)
+    .concat(POLICY_FIELDS.filter((f) => f !== "client_id"));
+
+  class HttpError extends Error {
+    constructor(status, message) { super(message); this.status = status; }
+  }
+
+  const now = () => new Date().toISOString().slice(0, 19);
+  function toNumber(v) {
+    if (v === null || v === undefined) return 0;
+    if (typeof v === "number") return v;
+    const t = String(v).trim().replace(/[$,%]/g, "");
+    if (!t) return 0;
+    const n = Number(t);
+    if (!Number.isFinite(n)) throw new HttpError(400, `not a number: '${v}'`);
+    return n;
+  }
+
+  function load() {
+    try {
+      const d = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      if (d && Array.isArray(d.clients) && Array.isArray(d.policies)) return d;
+    } catch {}
+    return { nextClientId: 1, nextPolicyId: 1, clients: [], policies: [] };
+  }
+  function save(db) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+    } catch (e) {
+      throw new HttpError(500, "Couldn't save in this browser (storage full or blocked). Export a CSV backup now.");
+    }
+  }
+
+  function cleanClient(data) {
+    const c = {};
+    CLIENT_FIELDS.forEach((f) => (c[f] = String(data[f] ?? "").trim()));
+    if (!c.first_name && !c.last_name) throw new HttpError(400, "Client needs a first or last name");
+    return c;
+  }
+  function cleanPolicy(db, data) {
+    const p = {};
+    POLICY_FIELDS.forEach((f) => {
+      if (NUMERIC.has(f)) p[f] = toNumber(data[f]);
+      else if (f === "client_id") p[f] = parseInt(data[f], 10);
+      else p[f] = String(data[f] ?? "").trim();
+    });
+    if (!p.client_id || !db.clients.some((c) => c.id === p.client_id)) throw new HttpError(400, "Policy needs a valid client");
+    return p;
+  }
+
+  function saveClient(db, data, id) {
+    const c = cleanClient(data);
+    if (id == null) {
+      const rec = { id: db.nextClientId++, ...c, created_at: now(), updated_at: now() };
+      db.clients.push(rec);
+      return rec.id;
+    }
+    const rec = db.clients.find((x) => x.id === id);
+    if (!rec) throw new HttpError(404, "Client not found");
+    Object.assign(rec, c, { updated_at: now() });
+    return id;
+  }
+  function savePolicy(db, data, id) {
+    const p = cleanPolicy(db, data);
+    if (id == null) {
+      const rec = { id: db.nextPolicyId++, ...p, created_at: now(), updated_at: now() };
+      db.policies.push(rec);
+      return rec.id;
+    }
+    const rec = db.policies.find((x) => x.id === id);
+    if (!rec) throw new HttpError(404, "Policy not found");
+    Object.assign(rec, p, { updated_at: now() });
+    return id;
+  }
+
+  const cmp = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
+
+  function listClients(db) {
+    return db.clients.map((c) => {
+      const ps = db.policies.filter((p) => p.client_id === c.id);
+      return {
+        ...c,
+        policy_count: ps.length,
+        inforce_premium: ps.filter((p) => p.status === "In Force" || p.status === "Issued")
+          .reduce((s, p) => s + (p.annual_premium || 0), 0),
+      };
+    }).sort((a, b) => cmp(a.last_name, b.last_name) || cmp(a.first_name, b.first_name));
+  }
+  function listPolicies(db) {
+    const byId = new Map(db.clients.map((c) => [c.id, c]));
+    return db.policies.map((p) => {
+      const c = byId.get(p.client_id) || {};
+      return { ...p, first_name: c.first_name, last_name: c.last_name, dob: c.dob, phone: c.phone, email: c.email, state: c.state };
+    }).sort((a, b) => cmp(b.app_date || b.created_at, a.app_date || a.created_at));
+  }
+
+  // --- CSV ---------------------------------------------------------------
+  function csvCell(v) {
+    const s = v === null || v === undefined ? "" : String(v);
+    return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  }
+  function parseCsv(text) {
+    const rows = [];
+    let row = [], field = "", i = 0, quoted = false;
+    text = text.replace(/^﻿/, "");
+    while (i < text.length) {
+      const ch = text[i];
+      if (quoted) {
+        if (ch === '"' && text[i + 1] === '"') { field += '"'; i += 2; continue; }
+        if (ch === '"') { quoted = false; i++; continue; }
+        field += ch; i++; continue;
+      }
+      if (ch === '"') { quoted = true; i++; continue; }
+      if (ch === ",") { row.push(field); field = ""; i++; continue; }
+      if (ch === "\r" || ch === "\n") {
+        row.push(field); rows.push(row); row = []; field = "";
+        i += ch === "\r" && text[i + 1] === "\n" ? 2 : 1;
+        continue;
+      }
+      field += ch; i++;
+    }
+    if (field !== "" || row.length) { row.push(field); rows.push(row); }
+    return rows.filter((r) => r.some((c) => c.trim() !== ""));
+  }
+
+  function exportCsv(db) {
+    const lines = [CSV_COLUMNS.join(",")];
+    for (const c of listClients(db)) {
+      const ps = db.policies.filter((p) => p.client_id === c.id).sort((a, b) => cmp(a.app_date, b.app_date));
+      const clientCells = CLIENT_FIELDS.map((f) => c[f]);
+      if (!ps.length) lines.push(clientCells.concat(POLICY_FIELDS.slice(1).map(() => "")).map(csvCell).join(","));
+      for (const p of ps) lines.push(clientCells.concat(POLICY_FIELDS.slice(1).map((f) => p[f])).map(csvCell).join(","));
+    }
+    return lines.join("\r\n") + "\r\n";
+  }
+
+  function policyExists(db, clientId, p) {
+    return db.policies.some((x) => x.client_id === clientId && (p.policy_number
+      ? x.policy_number === p.policy_number
+      : !x.policy_number && x.carrier.toLowerCase() === p.carrier.toLowerCase()
+        && x.product_type === p.product_type && x.app_date === p.app_date));
+  }
+
+  function importCsv(db, text) {
+    const rows = parseCsv(text);
+    if (!rows.length) throw new HttpError(400, "CSV is empty");
+    const header = rows[0].map((h) => h.trim().toLowerCase().replace(/ /g, "_"));
+    let clientsAdded = 0, policiesAdded = 0, policiesSkipped = 0;
+    rows.slice(1).forEach((cells, idx) => {
+      const row = {};
+      header.forEach((h, i) => (row[h] = (cells[i] || "").trim()));
+      const client = {};
+      CLIENT_FIELDS.forEach((f) => (client[f] = row[CLIENT_CSV_PREFIXED[f] || f] || ""));
+      if (!client.first_name && !client.last_name) return;
+      const existing = db.clients.find((c) => c.first_name.toLowerCase() === client.first_name.toLowerCase()
+        && c.last_name.toLowerCase() === client.last_name.toLowerCase() && c.dob === client.dob);
+      let clientId;
+      if (existing) clientId = existing.id;
+      else { clientId = saveClient(db, client); clientsAdded++; }
+      const policy = {};
+      POLICY_FIELDS.slice(1).forEach((f) => (policy[f] = row[f] || ""));
+      if (!["carrier", "policy_number", "product_type", "annual_premium", "face_amount"].some((f) => policy[f])) return;
+      policy.client_id = clientId;
+      policy.status = policy.status || "Submitted";
+      if (policyExists(db, clientId, policy)) { policiesSkipped++; return; }
+      try { savePolicy(db, policy); } catch (e) { throw new HttpError(400, `Row ${idx + 2}: ${e.message}`); }
+      policiesAdded++;
+    });
+    return { clients_added: clientsAdded, policies_added: policiesAdded, policies_skipped: policiesSkipped };
+  }
+
+  // --- request router (same paths as server.py) --------------------------
+  function handle(method, path, body) {
+    const parts = path.split("?")[0].split("/").filter(Boolean);
+    if (parts[0] !== "api" || parts.length < 2 || parts.length > 3) throw new HttpError(404, "Not found");
+    const resource = parts[1];
+    let id = null;
+    if (parts.length === 3) {
+      if (!/^\d+$/.test(parts[2])) throw new HttpError(404, "Not found");
+      id = +parts[2];
+    }
+    const db = load();
+    const write = (result) => { save(db); return result; };
+    if (resource === "clients") {
+      if (method === "GET" && id === null) return listClients(db);
+      if (method === "POST" && id === null) return write({ id: saveClient(db, body || {}) });
+      if (method === "PUT" && id !== null) return write({ id: saveClient(db, body || {}, id) });
+      if (method === "DELETE" && id !== null) {
+        if (!db.clients.some((c) => c.id === id)) throw new HttpError(404, "Client not found");
+        db.clients = db.clients.filter((c) => c.id !== id);
+        db.policies = db.policies.filter((p) => p.client_id !== id);
+        return write({ ok: true });
+      }
+    } else if (resource === "policies") {
+      if (method === "GET" && id === null) return listPolicies(db);
+      if (method === "POST" && id === null) return write({ id: savePolicy(db, body || {}) });
+      if (method === "PUT" && id !== null) return write({ id: savePolicy(db, body || {}, id) });
+      if (method === "DELETE" && id !== null) {
+        if (!db.policies.some((p) => p.id === id)) throw new HttpError(404, "Policy not found");
+        db.policies = db.policies.filter((p) => p.id !== id);
+        return write({ ok: true });
+      }
+    } else if (resource === "export" && method === "GET") {
+      return exportCsv(db);
+    } else if (resource === "import" && method === "POST") {
+      return write(importCsv(db, body || ""));
+    }
+    throw new HttpError(404, "Not found");
+  }
+
+  window.LocalStore = {
+    request(method, path, body) {
+      try {
+        return Promise.resolve(handle(method, path, body));
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    },
+  };
+})();
+
+"use strict";
+
+const STATUSES = [
+  "Submitted", "Underwriting", "Approved", "Issued", "In Force",
+  "Declined", "Not Taken", "Lapsed", "Cancelled",
+];
+const INFORCE = new Set(["Issued", "In Force"]);
+const PENDING = new Set(["Submitted", "Underwriting", "Approved"]);
+const TERMINATED = new Set(["Lapsed", "Cancelled"]);
+const STATUS_TONE = {
+  "Submitted": "info", "Underwriting": "info", "Approved": "warn",
+  "Issued": "good", "In Force": "good",
+  "Declined": "bad", "Not Taken": "", "Lapsed": "bad", "Cancelled": "",
+};
+const PRODUCT_TYPES = [
+  "Term", "Whole Life", "IUL", "Universal Life", "Final Expense",
+  "Mortgage Protection", "Annuity", "Other",
+];
+const MODES = { "Monthly": 12, "Quarterly": 4, "Semi-Annual": 2, "Annual": 1 };
+
+const state = {
+  clients: [],
+  policies: [],
+  policySort: { key: "app_date", asc: false },
+  clientSort: { key: "name", asc: true },
+};
+
+const $ = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+
+// ---------- formatting ----------
+const money = (n) => "$" + Math.round(n || 0).toLocaleString();
+const money2 = (n) => "$" + (n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+function compactMoney(n) {
+  const a = Math.abs(n || 0);
+  if (a >= 1e9) return "$" + (n / 1e9).toFixed(1).replace(/\.0$/, "") + "B";
+  if (a >= 1e6) return "$" + (n / 1e6).toFixed(1).replace(/\.0$/, "") + "M";
+  if (a >= 1e4) return "$" + (n / 1e3).toFixed(1).replace(/\.0$/, "") + "K";
+  return money(n);
+}
+function parseDate(s) {
+  if (!s) return null;
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s);
+  return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
+}
+function fmtDate(s) {
+  const d = parseDate(s);
+  return d ? d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "";
+}
+function today() {
+  const d = new Date();
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+const daysBetween = (a, b) => Math.round((b - a) / 86400000);
+function age(dob) {
+  const d = parseDate(dob);
+  if (!d) return null;
+  const t = today();
+  let a = t.getFullYear() - d.getFullYear();
+  if (t < new Date(t.getFullYear(), d.getMonth(), d.getDate())) a--;
+  return a;
+}
+// Next occurrence (today or later) of a month/day taken from a date string.
+function nextAnniversary(s) {
+  const d = parseDate(s);
+  if (!d) return null;
+  const t = today();
+  let n = new Date(t.getFullYear(), d.getMonth(), d.getDate());
+  if (n < t) n = new Date(t.getFullYear() + 1, d.getMonth(), d.getDate());
+  return n;
+}
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const clientName = (c) => [c.first_name, c.last_name].filter(Boolean).join(" ");
+const estCommission = (p) => (p.annual_premium || 0) * (p.commission_rate || 0) / 100;
+const pill = (status) => `<span class="pill ${STATUS_TONE[status] || ""}">${esc(status || "—")}</span>`;
+const toNum = (v) => {
+  const n = parseFloat(String(v ?? "").replace(/[$,%\s]/g, ""));
+  return Number.isFinite(n) ? n : 0;
+};
+
+function toast(msg) {
+  const el = $("#toast");
+  el.textContent = msg;
+  el.hidden = false;
+  clearTimeout(toast.t);
+  toast.t = setTimeout(() => (el.hidden = true), 2600);
+}
+
+// ---------- API ----------
+async function api(method, path, body) {
+  // Standalone single-file build: no server, data lives in this browser.
+  if (window.LocalStore) return window.LocalStore.request(method, path, body);
+  const opts = { method, headers: {} };
+  if (body !== undefined) {
+    opts.headers["Content-Type"] = typeof body === "string" ? "text/csv" : "application/json";
+    opts.body = typeof body === "string" ? body : JSON.stringify(body);
+  }
+  const res = await fetch(path, opts);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+  return data;
+}
+
+async function load() {
+  [state.clients, state.policies] = await Promise.all([api("GET", "/api/clients"), api("GET", "/api/policies")]);
+  renderAll();
+}
+
+function renderAll() {
+  renderDatalists();
+  renderDashboard();
+  renderPolicies();
+  renderClients();
+}
+
+// ---------- tabs ----------
+function showView(name) {
+  $$(".tab").forEach((t) => t.classList.toggle("active", t.dataset.view === name));
+  $$(".view").forEach((v) => (v.hidden = v.id !== `view-${name}`));
+  try { localStorage.setItem("bob.view", name); } catch {}
+}
+
+// ---------- dashboard ----------
+function renderDashboard() {
+  const ps = state.policies;
+  const inforce = ps.filter((p) => INFORCE.has(p.status));
+  const pending = ps.filter((p) => PENDING.has(p.status));
+  const terminated = ps.filter((p) => TERMINATED.has(p.status));
+  const sum = (arr, f) => arr.reduce((s, p) => s + (typeof f === "function" ? f(p) : p[f] || 0), 0);
+  const year = today().getFullYear();
+  const ytd = ps.filter((p) => parseDate(p.app_date)?.getFullYear() === year);
+  const persistBase = inforce.length + terminated.length;
+
+  $("#hero-ap").textContent = money(sum(inforce, "annual_premium"));
+  const tiles = [
+    ["Policies in force", inforce.length.toLocaleString(), `${state.clients.length.toLocaleString()} clients`],
+    ["Face amount in force", compactMoney(sum(inforce, "face_amount")), "Total coverage"],
+    ["Pending", pending.length.toLocaleString(), `${money(sum(pending, "annual_premium"))} annual premium`],
+    [`Written ${year}`, money(sum(ytd, "annual_premium")), `${ytd.length} applications`],
+    ["Commission paid", money(sum(ps, "commission_paid")), `${money(sum(ps, "chargeback"))} charged back`],
+    ["Persistency", persistBase ? Math.round((inforce.length / persistBase) * 100) + "%" : "—", `${terminated.length} lapsed or cancelled`],
+  ];
+  $("#tiles").innerHTML = tiles.map(([l, v, n]) =>
+    `<div class="tile"><div class="label">${esc(l)}</div><div class="value">${esc(v)}</div><div class="note">${esc(n)}</div></div>`
+  ).join("");
+
+  // Monthly production, last 12 months by app date
+  const t = today();
+  const months = [];
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(t.getFullYear(), t.getMonth() - i, 1);
+    months.push({ key: `${d.getFullYear()}-${d.getMonth()}`, label: d.toLocaleDateString(undefined, { month: "short" }), full: d.toLocaleDateString(undefined, { month: "long", year: "numeric" }), value: 0, count: 0 });
+  }
+  const byKey = Object.fromEntries(months.map((m) => [m.key, m]));
+  ps.forEach((p) => {
+    const d = parseDate(p.app_date);
+    const m = d && byKey[`${d.getFullYear()}-${d.getMonth()}`];
+    if (m && !["Declined", "Not Taken"].includes(p.status)) { m.value += p.annual_premium || 0; m.count++; }
+  });
+  columnChart($("#chart-monthly"), months.map((m) => ({
+    label: m.label, value: m.value,
+    tip: `<b>${esc(m.full)}</b><br>${money(m.value)} annual premium<br>${m.count} application${m.count === 1 ? "" : "s"}`,
+  })));
+
+  // In-force AP by carrier (top 7, rest folded into Other)
+  const carriers = {};
+  inforce.forEach((p) => {
+    const c = p.carrier || "Unknown";
+    carriers[c] = carriers[c] || { value: 0, count: 0 };
+    carriers[c].value += p.annual_premium || 0;
+    carriers[c].count++;
+  });
+  let rows = Object.entries(carriers).map(([label, v]) => ({ label, ...v })).sort((a, b) => b.value - a.value);
+  if (rows.length > 8) {
+    const rest = rows.slice(7);
+    rows = rows.slice(0, 7).concat({ label: "Other", value: rest.reduce((s, r) => s + r.value, 0), count: rest.reduce((s, r) => s + r.count, 0) });
+  }
+  barChart($("#chart-carrier"), rows.map((r) => ({
+    label: r.label, value: r.value,
+    tip: `<b>${esc(r.label)}</b><br>${money(r.value)} annual premium<br>${r.count} polic${r.count === 1 ? "y" : "ies"}`,
+  })));
+
+  renderAttention();
+  renderUpcoming();
+}
+
+function renderAttention() {
+  const t = today();
+  const items = [];
+  state.policies.forEach((p) => {
+    const f = parseDate(p.follow_up_date);
+    if (f && daysBetween(t, f) <= 14 && !TERMINATED.has(p.status)) {
+      const d = daysBetween(t, f);
+      items.push({ sort: d, p, html: `<span class="${d < 0 ? "overdue" : ""}">${d < 0 ? `${-d}d overdue` : d === 0 ? "Today" : `In ${d}d`}</span>`, why: "Follow-up" });
+    }
+    const a = parseDate(p.app_date);
+    if (PENDING.has(p.status) && a && daysBetween(a, t) > 30) {
+      items.push({ sort: -daysBetween(a, t), p, html: `${daysBetween(a, t)}d pending`, why: p.status });
+    }
+  });
+  items.sort((a, b) => a.sort - b.sort);
+  $("#list-attention").innerHTML = items.length ? items.slice(0, 12).map((it) => `
+    <li class="clickable" data-policy="${it.p.id}">
+      <div class="what"><b>${esc(clientName(it.p))}</b> · ${esc(it.p.carrier)} ${esc(it.p.product_type)}
+        <div class="meta">${esc(it.why)}${it.p.notes ? " · " + esc(it.p.notes.slice(0, 70)) : ""}</div></div>
+      <div class="meta">${it.html}</div>
+    </li>`).join("") : `<li class="none">Nothing due. Nice work.</li>`;
+}
+
+function renderUpcoming() {
+  const t = today();
+  const items = [];
+  state.clients.forEach((c) => {
+    const n = nextAnniversary(c.dob);
+    if (n && daysBetween(t, n) <= 30) {
+      const turning = age(c.dob) + (daysBetween(t, n) === 0 ? 0 : 1);
+      items.push({ d: daysBetween(t, n), html: `<b>${esc(clientName(c))}</b> turns ${turning}`, meta: "Birthday — age change can affect rates", client: c.id });
+    }
+  });
+  state.policies.filter((p) => INFORCE.has(p.status)).forEach((p) => {
+    const n = nextAnniversary(p.effective_date);
+    const eff = parseDate(p.effective_date);
+    if (n && eff && n > eff && daysBetween(t, n) <= 30) {
+      const yrs = n.getFullYear() - eff.getFullYear();
+      items.push({ d: daysBetween(t, n), html: `<b>${esc(clientName(p))}</b> · ${esc(p.carrier)} ${yrs}-year anniversary`, meta: "Policy anniversary — good time for a review", policy: p.id });
+    }
+  });
+  items.sort((a, b) => a.d - b.d);
+  $("#list-upcoming").innerHTML = items.length ? items.slice(0, 12).map((it) => `
+    <li class="clickable" ${it.policy ? `data-policy="${it.policy}"` : `data-client="${it.client}"`}>
+      <div class="what">${it.html}<div class="meta">${esc(it.meta)}</div></div>
+      <div class="meta">${it.d === 0 ? "Today" : `In ${it.d}d`}</div>
+    </li>`).join("") : `<li class="none">No birthdays or anniversaries in the next 30 days.</li>`;
+}
+
+// ---------- charts (single series, so no legend; title names the measure) ----------
+function niceMax(v) {
+  if (v <= 0) return 1;
+  const p = Math.pow(10, Math.floor(Math.log10(v)));
+  for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= v) return m * p;
+  return 10 * p;
+}
+function roundedTopRect(x, y, w, h, r) {
+  r = Math.min(r, w / 2, h);
+  if (h <= 0) return "";
+  return `M${x},${y + h}V${y + r}Q${x},${y} ${x + r},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h}Z`;
+}
+function roundedRightRect(x, y, w, h, r) {
+  r = Math.min(r, h / 2, w);
+  if (w <= 0) return "";
+  return `M${x},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h - r}Q${x + w},${y + h} ${x + w - r},${y + h}H${x}Z`;
+}
+
+// Draw at the container's real width so text stays 11px on every screen.
+const chartWidth = (el) => Math.max(260, Math.floor(el.clientWidth || 560));
+
+function columnChart(el, data) {
+  if (!data.some((d) => d.value > 0)) {
+    el.innerHTML = `<div class="chart-empty">No applications in the last 12 months yet.</div>`;
+    return;
+  }
+  const W = chartWidth(el), H = 230, L = 48, R = 8, T = 12, B = 24;
+  const max = niceMax(Math.max(...data.map((d) => d.value)));
+  const iw = W - L - R, ih = H - T - B;
+  const step = iw / data.length, bw = Math.min(28, step - 4);
+  let svg = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Annual premium written by month">`;
+  for (let i = 0; i <= 4; i++) {
+    const y = T + ih - (ih * i) / 4;
+    svg += `<line class="gridline" x1="${L}" x2="${W - R}" y1="${y}" y2="${y}"/>`;
+    svg += `<text class="axis-label" x="${L - 6}" y="${y + 4}" text-anchor="end">${compactMoney((max * i) / 4)}</text>`;
+  }
+  data.forEach((d, i) => {
+    const x = L + step * i + (step - bw) / 2;
+    const h = (d.value / max) * ih;
+    svg += `<g data-tip="${esc(d.tip)}">
+      <rect class="hit" x="${L + step * i}" y="${T}" width="${step}" height="${ih + B}"/>
+      <path class="bar" d="${roundedTopRect(x, T + ih - h, bw, h, 4)}"/>
+      ${step >= 32 || (data.length - 1 - i) % 2 === 0 ? `<text class="axis-label" x="${x + bw / 2}" y="${H - 6}" text-anchor="middle">${esc(d.label)}</text>` : ""}
+    </g>`;
+  });
+  el.innerHTML = svg + "</svg>";
+}
+
+function barChart(el, data) {
+  if (!data.length) {
+    el.innerHTML = `<div class="chart-empty">No issued or in-force policies yet.</div>`;
+    return;
+  }
+  const rowH = 28, L = 120, R = 64, W = chartWidth(el), H = data.length * rowH + 4;
+  const max = Math.max(...data.map((d) => d.value)) || 1;
+  const iw = W - L - R;
+  let svg = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="In-force annual premium by carrier">`;
+  data.forEach((d, i) => {
+    const y = i * rowH + 4, bh = 18;
+    const w = Math.max((d.value / max) * iw, d.value > 0 ? 2 : 0);
+    const label = d.label.length > 17 ? d.label.slice(0, 16) + "…" : d.label;
+    svg += `<g data-tip="${esc(d.tip)}">
+      <rect class="hit" x="0" y="${y - 3}" width="${W}" height="${rowH}"/>
+      <text class="axis-label" x="${L - 8}" y="${y + 13}" text-anchor="end">${esc(label)}</text>
+      <path class="bar" d="${roundedRightRect(L, y, w, bh, 4)}"/>
+      <text class="value-label" x="${L + w + 6}" y="${y + 13}">${compactMoney(d.value)}</text>
+    </g>`;
+  });
+  el.innerHTML = svg + "</svg>";
+}
+
+function wireTooltips() {
+  const tip = $("#tooltip");
+  document.addEventListener("mousemove", (e) => {
+    const g = e.target.closest?.("[data-tip]");
+    if (!g) { tip.hidden = true; return; }
+    tip.innerHTML = g.dataset.tip;
+    tip.hidden = false;
+    const x = Math.min(e.clientX + 14, window.innerWidth - tip.offsetWidth - 8);
+    tip.style.left = x + "px";
+    tip.style.top = e.clientY + 14 + "px";
+  });
+}
+
+// ---------- policies table ----------
+function policySortValue(p, key) {
+  if (key === "client") return (p.last_name + " " + p.first_name).toLowerCase();
+  if (key === "commission") return estCommission(p);
+  if (key === "status") return STATUSES.indexOf(p.status);
+  const v = p[key];
+  return typeof v === "string" ? v.toLowerCase() : v ?? 0;
+}
+function sortRows(rows, sort, valueFn) {
+  return rows.sort((a, b) => {
+    const va = valueFn(a, sort.key), vb = valueFn(b, sort.key);
+    // Empty strings always go last
+    if (va === "" && vb !== "") return 1;
+    if (vb === "" && va !== "") return -1;
+    return (va < vb ? -1 : va > vb ? 1 : 0) * (sort.asc ? 1 : -1);
+  });
+}
+function markSorted(table, sort) {
+  $$("th", table).forEach((th) => {
+    th.classList.toggle("sorted", th.dataset.sort === sort.key);
+    th.classList.toggle("asc", th.dataset.sort === sort.key && sort.asc);
+  });
+}
+
+function filteredPolicies() {
+  const q = $("#policy-search").value.trim().toLowerCase();
+  const st = $("#policy-status-filter").value;
+  const ca = $("#policy-carrier-filter").value;
+  return state.policies.filter((p) => {
+    if (st === "__inforce" ? !INFORCE.has(p.status) : st === "__pending" ? !PENDING.has(p.status) : st && p.status !== st) return false;
+    if (ca && p.carrier !== ca) return false;
+    if (!q) return true;
+    return [clientName(p), p.carrier, p.product_type, p.product_name, p.policy_number, p.beneficiary, p.notes, p.phone, p.email]
+      .some((v) => (v || "").toLowerCase().includes(q));
+  });
+}
+
+function renderPolicies() {
+  const rows = sortRows(filteredPolicies(), state.policySort, policySortValue);
+  const t = today();
+  $("#policy-table tbody").innerHTML = rows.map((p) => {
+    const f = parseDate(p.follow_up_date);
+    const overdue = f && f < t && !TERMINATED.has(p.status);
+    return `<tr data-policy="${p.id}">
+      <td>${esc(clientName(p))}</td>
+      <td>${esc(p.carrier)}</td>
+      <td>${esc(p.product_type)}${p.product_name ? ` <span class="meta" style="color:var(--text-3)">${esc(p.product_name)}</span>` : ""}</td>
+      <td>${esc(p.policy_number)}</td>
+      <td>${pill(p.status)}</td>
+      <td class="num">${p.face_amount ? money(p.face_amount) : ""}</td>
+      <td class="num">${p.annual_premium ? money2(p.annual_premium) : ""}</td>
+      <td class="num">${estCommission(p) ? money(estCommission(p)) : ""}</td>
+      <td>${fmtDate(p.app_date)}</td>
+      <td class="${overdue ? "overdue" : ""}">${fmtDate(p.follow_up_date)}</td>
+    </tr>`;
+  }).join("");
+  $("#policy-empty").hidden = state.policies.length > 0;
+  const ap = rows.reduce((s, p) => s + (p.annual_premium || 0), 0);
+  const face = rows.reduce((s, p) => s + (p.face_amount || 0), 0);
+  $("#policy-summary").textContent = state.policies.length
+    ? `${rows.length} of ${state.policies.length} policies · ${money(ap)} annual premium · ${compactMoney(face)} face`
+    : "";
+  markSorted($("#policy-table"), state.policySort);
+}
+
+// ---------- clients table ----------
+function clientSortValue(c, key) {
+  if (key === "name") return (c.last_name + " " + c.first_name).toLowerCase();
+  const v = c[key];
+  return typeof v === "string" ? v.toLowerCase() : v ?? 0;
+}
+function renderClients() {
+  const q = $("#client-search").value.trim().toLowerCase();
+  const rows = sortRows(state.clients.filter((c) => !q ||
+    [clientName(c), c.phone, c.email, c.city, c.state, c.zip, c.source, c.notes].some((v) => (v || "").toLowerCase().includes(q))
+  ), state.clientSort, clientSortValue);
+  $("#client-table tbody").innerHTML = rows.map((c) => {
+    const a = age(c.dob);
+    return `<tr data-client="${c.id}">
+      <td>${esc(clientName(c))}</td>
+      <td>${fmtDate(c.dob)}${a !== null ? ` · ${a}` : ""}</td>
+      <td>${esc(c.phone)}</td>
+      <td>${esc(c.email)}</td>
+      <td>${esc(c.state)}</td>
+      <td class="num">${c.policy_count || ""}</td>
+      <td class="num">${c.inforce_premium ? money2(c.inforce_premium) : ""}</td>
+    </tr>`;
+  }).join("");
+  $("#client-empty").hidden = state.clients.length > 0;
+  markSorted($("#client-table"), state.clientSort);
+}
+
+// ---------- dropdowns ----------
+function fillSelect(sel, options, keepFirst) {
+  const first = keepFirst ? sel.options[0].outerHTML : "";
+  sel.innerHTML = first + options.map((o) => typeof o === "string"
+    ? `<option>${esc(o)}</option>` : `<option value="${esc(o.value)}">${esc(o.label)}</option>`).join("");
+}
+function renderDatalists() {
+  const carriers = [...new Set(state.policies.map((p) => p.carrier).filter(Boolean))].sort();
+  $("#carrier-options").innerHTML = carriers.map((c) => `<option value="${esc(c)}">`).join("");
+  const sources = [...new Set(state.clients.map((c) => c.source).filter(Boolean))].sort();
+  $("#source-options").innerHTML = sources.map((c) => `<option value="${esc(c)}">`).join("");
+
+  const cf = $("#policy-carrier-filter"), cfVal = cf.value;
+  fillSelect(cf, carriers, true);
+  cf.value = carriers.includes(cfVal) ? cfVal : "";
+}
+
+// ---------- client dialog ----------
+const clientDialog = $("#client-dialog");
+const clientForm = $("#client-form");
+let clientDialogReturn = null; // callback(newClientId) when opened from the policy form
+
+function openClient(id, onSaved) {
+  const c = state.clients.find((x) => x.id === id);
+  clientDialogReturn = onSaved || null;
+  clientForm.reset();
+  clientForm.dataset.id = c ? c.id : "";
+  $("#client-dialog-title").textContent = c ? clientName(c) : "New client";
+  $("#client-delete").hidden = !c;
+  if (c) for (const el of clientForm.elements) if (el.name && el.name in c) el.value = c[el.name] ?? "";
+
+  const box = $("#client-policies");
+  if (c) {
+    const ps = state.policies.filter((p) => p.client_id === c.id);
+    box.innerHTML = `<h3>Policies (${ps.length})</h3>` + (ps.length ? `<ul class="list">${ps.map((p) => `
+      <li class="clickable" data-policy="${p.id}"><div class="what"><b>${esc(p.carrier)}</b> ${esc(p.product_type)} ${esc(p.policy_number)}
+      <div class="meta">${p.face_amount ? money(p.face_amount) + " face · " : ""}${money2(p.annual_premium)}/yr</div></div>${pill(p.status)}</li>`).join("")}</ul>` : "")
+      + `<button type="button" class="btn small" data-new-policy-for="${c.id}">+ Add policy for ${esc(c.first_name || clientName(c))}</button>`;
+  } else {
+    box.innerHTML = "";
+  }
+  clientDialog.showModal();
+}
+
+clientForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(clientForm));
+  data.state = (data.state || "").toUpperCase();
+  const id = clientForm.dataset.id;
+  try {
+    const res = id ? await api("PUT", `/api/clients/${id}`, data) : await api("POST", "/api/clients", data);
+    clientDialog.close();
+    await load();
+    toast(id ? "Client saved" : "Client added");
+    if (clientDialogReturn) clientDialogReturn(res.id);
+  } catch (err) { toast(err.message); }
+});
+
+$("#client-delete").addEventListener("click", async () => {
+  const id = clientForm.dataset.id;
+  const n = state.policies.filter((p) => String(p.client_id) === id).length;
+  if (!confirm(`Delete this client${n ? ` and their ${n} polic${n === 1 ? "y" : "ies"}` : ""}? This can't be undone.`)) return;
+  try {
+    await api("DELETE", `/api/clients/${id}`);
+    clientDialog.close();
+    await load();
+    toast("Client deleted");
+  } catch (err) { toast(err.message); }
+});
+
+// ---------- policy dialog ----------
+const policyDialog = $("#policy-dialog");
+const policyForm = $("#policy-form");
+const pf = (name) => policyForm.elements[name];
+
+function fillClientSelect(selectedId) {
+  const sorted = [...state.clients].sort((a, b) => clientSortValue(a, "name") < clientSortValue(b, "name") ? -1 : 1);
+  fillSelect(pf("client_id"), [{ value: "", label: "Select a client…" }, ...sorted.map((c) => ({ value: c.id, label: clientName(c) + (c.dob ? ` (${fmtDate(c.dob)})` : "") }))]);
+  pf("client_id").value = selectedId ?? "";
+}
+
+function updatePremiumFields(source) {
+  const periods = MODES[pf("payment_mode").value] || 12;
+  if (source === "modal") pf("annual_premium").value = pf("modal_premium").value ? (toNum(pf("modal_premium").value) * periods).toFixed(2) : "";
+  else pf("modal_premium").value = pf("annual_premium").value ? (toNum(pf("annual_premium").value) / periods).toFixed(2) : "";
+  const est = toNum(pf("annual_premium").value) * toNum(pf("commission_rate").value) / 100;
+  pf("est_commission").value = est ? money2(est) : "";
+}
+
+function openPolicy(id, presetClientId) {
+  const p = state.policies.find((x) => x.id === id);
+  policyForm.reset();
+  policyForm.dataset.id = p ? p.id : "";
+  $("#policy-dialog-title").textContent = p ? `${clientName(p)} — ${p.carrier || "Policy"}` : "New policy";
+  $("#policy-delete").hidden = !p;
+  fillClientSelect(p ? p.client_id : presetClientId);
+  if (p) {
+    for (const el of policyForm.elements) {
+      if (!el.name || !(el.name in p) || el.name === "client_id") continue;
+      const v = p[el.name];
+      el.value = typeof v === "number" ? (v ? String(v) : "") : v ?? "";
+    }
+  } else {
+    pf("status").value = "Submitted";
+    pf("payment_mode").value = "Monthly";
+    pf("app_date").value = new Date().toLocaleDateString("en-CA");
+  }
+  updatePremiumFields("annual");
+  policyDialog.showModal();
+}
+
+policyForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(policyForm));
+  delete data.modal_premium;
+  delete data.est_commission;
+  const id = policyForm.dataset.id;
+  try {
+    id ? await api("PUT", `/api/policies/${id}`, data) : await api("POST", "/api/policies", data);
+    policyDialog.close();
+    await load();
+    toast(id ? "Policy saved" : "Policy added");
+  } catch (err) { toast(err.message); }
+});
+
+$("#policy-delete").addEventListener("click", async () => {
+  if (!confirm("Delete this policy? This can't be undone.")) return;
+  try {
+    await api("DELETE", `/api/policies/${policyForm.dataset.id}`);
+    policyDialog.close();
+    await load();
+    toast("Policy deleted");
+  } catch (err) { toast(err.message); }
+});
+
+pf("modal_premium").addEventListener("input", () => updatePremiumFields("modal"));
+pf("annual_premium").addEventListener("input", () => updatePremiumFields("annual"));
+pf("payment_mode").addEventListener("change", () => updatePremiumFields(pf("modal_premium").value ? "modal" : "annual"));
+pf("commission_rate").addEventListener("input", () => updatePremiumFields("annual"));
+
+$("#policy-new-client").addEventListener("click", () => {
+  // Keep the policy dialog open underneath; select the new client when saved.
+  openClient(null, (newId) => fillClientSelect(newId));
+});
+
+// ---------- import ----------
+$("#btn-import").addEventListener("click", () => $("#import-file").click());
+$("#import-file").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  e.target.value = "";
+  if (!file) return;
+  try {
+    const res = await api("POST", "/api/import", await file.text());
+    await load();
+    toast(`Imported ${res.clients_added} new clients and ${res.policies_added} policies` +
+      (res.policies_skipped ? ` (${res.policies_skipped} duplicates skipped)` : ""));
+  } catch (err) { toast("Import failed: " + err.message); }
+});
+
+// ---------- export ----------
+$("#btn-export").addEventListener("click", async () => {
+  try {
+    let csv;
+    if (window.LocalStore) csv = await window.LocalStore.request("GET", "/api/export");
+    else {
+      const res = await fetch("/api/export");
+      if (!res.ok) throw new Error(`Request failed (${res.status})`);
+      csv = await res.text();
+    }
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    const a = Object.assign(document.createElement("a"), {
+      href: url,
+      download: `book-of-business-${new Date().toLocaleDateString("en-CA")}.csv`,
+    });
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (err) { toast("Export failed: " + err.message); }
+});
+
+// ---------- global wiring ----------
+function init() {
+  fillSelect($("#policy-status-filter"), [
+    { value: "__inforce", label: "In force (Issued + In Force)" },
+    { value: "__pending", label: "Pending (not yet issued)" },
+    ...STATUSES,
+  ], true);
+  fillSelect(pf("status"), STATUSES);
+  fillSelect(pf("product_type"), PRODUCT_TYPES);
+  fillSelect(pf("payment_mode"), Object.keys(MODES));
+
+  $$(".tab").forEach((t) => t.addEventListener("click", () => showView(t.dataset.view)));
+  let saved = null;
+  try { saved = localStorage.getItem("bob.view"); } catch {}
+  if (saved && $(`#view-${saved}`)) showView(saved);
+
+  document.addEventListener("click", (e) => {
+    const action = e.target.closest("[data-action]")?.dataset.action;
+    if (action === "new-policy") return openPolicy(null);
+    if (action === "new-client") return openClient(null);
+    if (e.target.closest("[data-close]")) return e.target.closest("dialog").close();
+    const forClient = e.target.closest("[data-new-policy-for]");
+    if (forClient) { clientDialog.close(); return openPolicy(null, +forClient.dataset.newPolicyFor); }
+    const sortTh = e.target.closest("th[data-sort]");
+    if (sortTh) {
+      const isPolicy = !!sortTh.closest("#policy-table");
+      const s = isPolicy ? state.policySort : state.clientSort;
+      if (s.key === sortTh.dataset.sort) s.asc = !s.asc; else { s.key = sortTh.dataset.sort; s.asc = true; }
+      return isPolicy ? renderPolicies() : renderClients();
+    }
+    const pol = e.target.closest("[data-policy]");
+    if (pol) { if (clientDialog.open) clientDialog.close(); return openPolicy(+pol.dataset.policy); }
+    const cli = e.target.closest("[data-client]");
+    if (cli) return openClient(+cli.dataset.client);
+  });
+
+  ["#policy-search", "#policy-status-filter", "#policy-carrier-filter"].forEach((s) => $(s).addEventListener("input", renderPolicies));
+  $("#client-search").addEventListener("input", renderClients);
+  wireTooltips();
+  let resizeTimer;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(renderDashboard, 150);
+  });
+  load().catch((err) => toast("Couldn't load data: " + err.message));
+}
+
+init();
+</script>
+</body>
+</html>
